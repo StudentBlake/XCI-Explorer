@@ -1,6 +1,7 @@
 # XCI Explorer
 
 [Original Release](https://www.maxconsole.com/threads/exclusive-xci-explorer-released-for-switch-game-cartridge-backups.47046/)
+
 View contents of XCI files and more
 
 ## Features
@@ -21,3 +22,6 @@ View contents of XCI files and more
 * Open XCI Explorer.sln/.csproj
 * Build -> Build Solution
 * Add hactool + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
+
+## Disclaimer
+I am NOT a dev, this hasn't been extensively tested.
