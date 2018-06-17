@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{89DBE891-22C7-40FF-A3D3-36F26224E09D}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>XCI Explorer</AssemblyName>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</HintPath>
+    </Reference>
+    <Reference Include="Be.Windows.Forms.HexBox">
+      <HintPath>C:\Users\Blake\Desktop\XCIExplorer\Be.Windows.Forms.HexBox.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Drawing\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Core\v4.0_4.0.0.0__b77a5c561934e089\System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XCI_Explorer.Helpers\BetterBinaryReader.cs" />
+    <Compile Include="XCI_Explorer.Helpers\BetterTreeNode.cs" />
+    <Compile Include="XCI_Explorer.Properties\Resources.cs" />
+    <Compile Include="XCI_Explorer.Properties\Settings.cs" />
+    <Compile Include="XCI_Explorer\CertForm.cs" />
+    <Compile Include="XCI_Explorer\HFS0.cs" />
+    <Compile Include="XCI_Explorer\MainForm.cs" />
+    <Compile Include="XCI_Explorer\NACP.cs" />
+    <Compile Include="XCI_Explorer\NCA.cs" />
+    <Compile Include="XCI_Explorer\PFS0.cs" />
+    <Compile Include="XCI_Explorer\Program.cs" />
+    <Compile Include="XCI_Explorer\TreeViewFileSystem.cs" />
+    <Compile Include="XCI_Explorer\Util.cs" />
+    <Compile Include="XCI_Explorer\XCI.cs" />
+    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
+    <Compile Include="XTSSharp\SectorStream.cs" />
+    <Compile Include="XTSSharp\Xts.cs" />
+    <Compile Include="XTSSharp\XtsAes128.cs" />
+    <Compile Include="XTSSharp\XtsAes256.cs" />
+    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
+    <Compile Include="XTSSharp\XtsSectorStream.cs" />
+    <Compile Include="XTSSharp\XtsStream.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
