@@ -320,10 +320,17 @@ namespace XCI_Explorer
 							if (NACP.NACP_Strings[i].Check != 0)
 							{
 								CB_RegionName.Items.Add(Language[i]);
-								using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
-								{
-									Icons[i] = new Bitmap(original);
-								}
+                                try
+                                {
+                                    using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
+                                    {
+                                        Icons[i] = new Bitmap(original);
+                                    }
+                                }
+                                catch
+                                {
+                                    // using bad coding coding practices as a temp fix until someone can figure out the problem
+                                }
 								PB_GameIcon.BackgroundImage = Icons[i];
 							}
 						}
