@@ -273,7 +273,7 @@ namespace XCI_Explorer
 
 		private void LoadGameInfos()
 		{
-            bool msgFlag = false;
+            bool msgFlag = false, msgFlag2 = false;
             CB_RegionName.Items.Clear();
 			TB_Name.Text = "";
 			TB_Dev.Text = "";
@@ -345,7 +345,15 @@ namespace XCI_Explorer
 						File.Delete("meta");
 						Directory.Delete("data", true);
 					}
-					CB_RegionName.SelectedIndex = 0;
+                    try
+                    {
+                        CB_RegionName.SelectedIndex = 0;
+                    }
+					catch
+                    {
+                        // temporary fix until a dev can add card2 support
+                        msgFlag2 = true;
+                    }
 				}
 			}
 			else
@@ -353,7 +361,11 @@ namespace XCI_Explorer
 				TB_Dev.Text = Mkey + " not found";
 				TB_Name.Text = Mkey + " not found";
 			}
-            if (msgFlag)
+            if (msgFlag2)
+            {
+                MessageBox.Show("This XCI is a Card2 release. Card2 is currently not supported [CARD2]");
+            }
+            else if (msgFlag)
             {
                 MessageBox.Show("This XCI may not support trim/extract functions [LOGO]");
             }
