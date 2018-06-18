@@ -24,4 +24,6 @@ View contents of XCI files and more
 * Add hactool + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
 
 ## Disclaimer
-I am NOT a developer and this has NOT been extensively tested.
+This is not my original work. I just decompiled the rogue executable floating around and made minor changes. 
+
+I am NOT a developer and this has NOT been extensively tested!
