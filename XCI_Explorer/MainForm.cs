@@ -273,11 +273,12 @@ namespace XCI_Explorer
 
 		private void LoadGameInfos()
 		{
-            bool msgFlag = false, msgFlag2 = false;
+            bool msgFlag = false;
             CB_RegionName.Items.Clear();
-			TB_Name.Text = "";
+            CB_RegionName.Enabled = true;
+            TB_Name.Text = "";
 			TB_Dev.Text = "";
-			PB_GameIcon.BackgroundImage = null;
+            PB_GameIcon.BackgroundImage = null;
 			if (getMKey())
 			{
 				using (FileStream fileStream = File.OpenRead(TB_File.Text))
@@ -320,10 +321,9 @@ namespace XCI_Explorer
 							NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 768).Take(768).ToArray());
 							if (NACP.NACP_Strings[i].Check != 0)
 							{
-								CB_RegionName.Items.Add(Language[i]);
+                                CB_RegionName.Items.Add(Language[i]);
                                 try
                                 {
-                                    CB_RegionName.Enabled = true;
                                     using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
                                     {
                                         Icons[i] = new Bitmap(original);
@@ -331,9 +331,9 @@ namespace XCI_Explorer
                                 }
                                 catch
                                 {
-                                    // using bad coding coding practices as a temporary fix until someone can figure out the problem
-                                    CB_RegionName.Enabled = false;
-                                    msgFlag = true;
+                                    // using bad coding practices as a temporary fix until someone can figure out the problem
+                                    // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?)
+                                    CB_RegionName.Items.Remove(Language[i]);
                                 }
 								PB_GameIcon.BackgroundImage = Icons[i];
 							}
@@ -354,8 +354,14 @@ namespace XCI_Explorer
 					catch
                     {
                         // temporary fix until a dev can add card2 support
+                        // Problem: 'meta' file is empty because Card2 stores metadata in a different location
                         File.Delete("meta");
-                        msgFlag2 = true;
+                        TB_GameRev.Text = "???";
+                        TB_ProdCode.Text = "???";
+                        CB_RegionName.Enabled = false;
+                        TB_Name.Text = "???";
+                        TB_Dev.Text = "???";
+                        msgFlag = true;
                     }
 				}
 			}
@@ -364,13 +370,9 @@ namespace XCI_Explorer
 				TB_Dev.Text = Mkey + " not found";
 				TB_Name.Text = Mkey + " not found";
 			}
-            if (msgFlag2)
+            if (msgFlag)
             {
-                MessageBox.Show("This XCI is a Card2 release. Card2 is currently not supported [CARD2]");
-            }
-            else if (msgFlag)
-            {
-                MessageBox.Show("This XCI may not support trim/extract functions [LOGO]");
+                MessageBox.Show("Some features may not supported for this release [CARD2]");
             }
         }
 
@@ -491,6 +493,7 @@ namespace XCI_Explorer
             {
                 // another temporary fix until someone can understand the real problem
                 // I am just taking shots in the dark using any method to get it not to crash
+                // Problem: Overflow issue
                 array8 = new PFS0.PFS0_Entry[0];
                 msgFlag = true;
             }
@@ -523,7 +526,7 @@ namespace XCI_Explorer
 			fileStream.Close();
             if (msgFlag)
             {
-                MessageBox.Show("This XCI may not support trim/extract functions [PARTITION]");
+                MessageBox.Show("Trim/extract functions may not be supported for this release [PARTITION]");
             }
         }
 

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
-    <AssemblyName>XCI-Explorer-v1.0.0.3</AssemblyName>
+    <AssemblyName>XCI-Explorer-v1.0.1.0</AssemblyName>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
