@@ -323,6 +323,7 @@ namespace XCI_Explorer
 								CB_RegionName.Items.Add(Language[i]);
                                 try
                                 {
+                                    CB_RegionName.Enabled = true;
                                     using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
                                     {
                                         Icons[i] = new Bitmap(original);
@@ -331,6 +332,7 @@ namespace XCI_Explorer
                                 catch
                                 {
                                     // using bad coding coding practices as a temporary fix until someone can figure out the problem
+                                    CB_RegionName.Enabled = false;
                                     msgFlag = true;
                                 }
 								PB_GameIcon.BackgroundImage = Icons[i];
@@ -352,6 +354,7 @@ namespace XCI_Explorer
 					catch
                     {
                         // temporary fix until a dev can add card2 support
+                        File.Delete("meta");
                         msgFlag2 = true;
                     }
 				}
