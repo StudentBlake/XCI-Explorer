@@ -24,4 +24,4 @@ View contents of XCI files and more
 * Add hactool + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
 
 ## Disclaimer
-I am NOT a dev, this hasn't been extensively tested.
+I am NOT a developer and this has NOT been extensively tested.
