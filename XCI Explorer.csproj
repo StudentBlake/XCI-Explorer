@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{89DBE891-22C7-40FF-A3D3-36F26224E09D}</ProjectGuid>
@@ -49,9 +49,13 @@
     <Compile Include="XCI_Explorer.Helpers\BetterTreeNode.cs" />
     <Compile Include="XCI_Explorer.Properties\Resources.cs" />
     <Compile Include="XCI_Explorer.Properties\Settings.cs" />
-    <Compile Include="XCI_Explorer\CertForm.cs" />
+    <Compile Include="XCI_Explorer\CertForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="XCI_Explorer\HFS0.cs" />
-    <Compile Include="XCI_Explorer\MainForm.cs" />
+    <Compile Include="XCI_Explorer\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="XCI_Explorer\NACP.cs" />
     <Compile Include="XCI_Explorer\NCA.cs" />
     <Compile Include="XCI_Explorer\PFS0.cs" />
