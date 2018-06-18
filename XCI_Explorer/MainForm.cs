@@ -329,7 +329,7 @@ namespace XCI_Explorer
                                 }
                                 catch
                                 {
-                                    // using bad coding coding practices as a temp fix until someone can figure out the problem
+                                    // using bad coding coding practices as a temporary fix until someone can figure out the problem
                                 }
 								PB_GameIcon.BackgroundImage = Icons[i];
 							}
@@ -460,7 +460,17 @@ namespace XCI_Explorer
 			fileStream.Position = PFS0Offset;
 			fileStream.Read(array3, 0, 16);
 			PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
-			PFS0.PFS0_Entry[] array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            PFS0.PFS0_Entry[] array8;
+            try
+            {
+                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            }
+            catch
+            {
+                // another temporary fix until someone can understand the real problem
+                // I am just taking shots in the dark using any method to get it not to crash
+                array8 = new PFS0.PFS0_Entry[0];
+            }
 			for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++)
 			{
 				fileStream.Position = PFS0Offset + 16 + 24 * m;
