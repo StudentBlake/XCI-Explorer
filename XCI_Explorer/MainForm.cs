@@ -273,7 +273,8 @@ namespace XCI_Explorer
 
 		private void LoadGameInfos()
 		{
-			CB_RegionName.Items.Clear();
+            bool msgFlag = false;
+            CB_RegionName.Items.Clear();
 			TB_Name.Text = "";
 			TB_Dev.Text = "";
 			PB_GameIcon.BackgroundImage = null;
@@ -330,6 +331,7 @@ namespace XCI_Explorer
                                 catch
                                 {
                                     // using bad coding coding practices as a temporary fix until someone can figure out the problem
+                                    msgFlag = true;
                                 }
 								PB_GameIcon.BackgroundImage = Icons[i];
 							}
@@ -351,7 +353,11 @@ namespace XCI_Explorer
 				TB_Dev.Text = Mkey + " not found";
 				TB_Name.Text = Mkey + " not found";
 			}
-		}
+            if (msgFlag)
+            {
+                MessageBox.Show("This XCI may not support trim/extract functions [LOGO]");
+            }
+        }
 
 		private void LoadNCAData()
 		{
@@ -363,7 +369,8 @@ namespace XCI_Explorer
 
 		private void LoadPartitons()
 		{
-			TV_Partitions.Nodes.Clear();
+            bool msgFlag = false;
+            TV_Partitions.Nodes.Clear();
 			TV_Parti = new TreeViewFileSystem(TV_Partitions);
 			rootNode = new BetterTreeNode("root");
 			rootNode.Offset = -1L;
@@ -470,6 +477,7 @@ namespace XCI_Explorer
                 // another temporary fix until someone can understand the real problem
                 // I am just taking shots in the dark using any method to get it not to crash
                 array8 = new PFS0.PFS0_Entry[0];
+                msgFlag = true;
             }
 			for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++)
 			{
@@ -498,7 +506,11 @@ namespace XCI_Explorer
 				}
 			}
 			fileStream.Close();
-		}
+            if (msgFlag)
+            {
+                MessageBox.Show("This XCI may not support trim/extract functions [PARTITION]");
+            }
+        }
 
 		private void TV_Partitions_AfterSelect(object sender, TreeViewEventArgs e)
 		{
