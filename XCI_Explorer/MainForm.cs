@@ -430,29 +430,29 @@ namespace XCI_Explorer
 				{
 					fileStream.Position = array[i].Offset + num + 16 + 64 * j;
 					fileStream.Read(array2, 0, 64);
-					array6[i] = new HFS0.HSF0_Entry(array2);
-					fileStream.Position = array[i].Offset + num + 16 + 64 * array5[0].FileCount + array6[i].Name_ptr;
+					array6[j] = new HFS0.HSF0_Entry(array2);
+					fileStream.Position = array[i].Offset + num + 16 + 64 * array5[0].FileCount + array6[j].Name_ptr;
 					if (array[i].Name == "secure")
 					{
-						SecureSize[j] = array6[i].Size;
-						SecureOffset[j] = array[i].Offset + array6[i].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+						SecureSize[j] = array6[j].Size;
+						SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
 					}
 					if (array[i].Name == "normal")
 					{
-						NormalSize[j] = array6[i].Size;
-						NormalOffset[j] = array[i].Offset + array6[i].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+						NormalSize[j] = array6[j].Size;
+						NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
 					}
 					while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0)
 					{
 						chars.Add((char)num2);
 					}
-					array6[i].Name = new string(chars.ToArray());
+					array6[j].Name = new string(chars.ToArray());
 					chars.Clear();
-					TV_Parti.AddFile(array6[i].Name, betterTreeNode, array[i].Offset + array6[i].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64, array6[i].Size);
+					TV_Parti.AddFile(array6[j].Name, betterTreeNode, array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64, array6[j].Size);
 					TreeNode[] array7 = TV_Partitions.Nodes.Find(betterTreeNode.Text, true);
 					if (array7.Length != 0)
 					{
-						TV_Parti.AddFile(array6[i].Name, (BetterTreeNode)array7[0], 0L, 0L);
+						TV_Parti.AddFile(array6[j].Name, (BetterTreeNode)array7[0], 0L, 0L);
 					}
 				}
 			}
