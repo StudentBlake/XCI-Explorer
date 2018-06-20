@@ -43,10 +43,6 @@ namespace XCI_Explorer
 
 		private long[] NormalOffset;
 
-		private long metadataNcaOffset;
-
-		private long metadataNcaSize;
-
 		private long gameNcaOffset;
 
 		private long gameNcaSize;
@@ -273,7 +269,6 @@ namespace XCI_Explorer
 
 		private void LoadGameInfos()
 		{
-            bool msgFlag = false;
             CB_RegionName.Items.Clear();
             CB_RegionName.Enabled = true;
             TB_Name.Text = "";
@@ -283,86 +278,91 @@ namespace XCI_Explorer
 			{
 				using (FileStream fileStream = File.OpenRead(TB_File.Text))
 				{
-					using (FileStream fileStream2 = File.OpenWrite("meta"))
-					{
-						BinaryReader binaryReader = new BinaryReader(fileStream);
-						BinaryWriter binaryWriter = new BinaryWriter(fileStream2);
-						fileStream.Position = metadataNcaOffset;
-						byte[] buffer = new byte[8192];
-						long num = metadataNcaSize;
-						int num2;
-						while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
-						{
-							fileStream2.Write(buffer, 0, num2);
-							num -= num2;
-						}
-						fileStream.Close();
-						binaryReader.Close();
-						binaryWriter.Close();
-					}
-				}
-				if (File.Exists("meta"))
-				{
-					Process process = new Process();
-					process.StartInfo = new ProcessStartInfo
-					{
-						WindowStyle = ProcessWindowStyle.Hidden,
-						FileName = "hactool.exe",
-						Arguments = "-k keys.txt --romfsdir=data meta"
-					};
-					process.Start();
-					process.WaitForExit();
-					if (File.Exists("data\\control.nacp"))
-					{
-						byte[] source = File.ReadAllBytes("data\\control.nacp");
-						NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(12288).Take(4096).ToArray());
-						for (int i = 0; i < NACP.NACP_Strings.Length; i++)
-						{
-							NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 768).Take(768).ToArray());
-							if (NACP.NACP_Strings[i].Check != 0)
-							{
-                                CB_RegionName.Items.Add(Language[i]);
-                                try
+                    for (int si=0; si < SecureSize.Length; si++)
+                    {
+                        if (SecureSize[si] > 0x4E20000) continue;
+
+                        try
+                        {
+                            File.Delete("meta");
+                        } catch { }
+                        try
+                        {
+                            Directory.Delete("data", true);
+                        } catch { }
+
+                        using (FileStream fileStream2 = File.OpenWrite("meta"))
+                        {
+                            fileStream.Position = SecureOffset[si];
+                            byte[] buffer = new byte[8192];
+                            long num = SecureSize[si];
+                            int num2;
+                            while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
+                            {
+                                fileStream2.Write(buffer, 0, num2);
+                                num -= num2;
+                            }
+                            fileStream2.Close();
+                        }
+
+                        Process process = new Process();
+                        process.StartInfo = new ProcessStartInfo
+                        {
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            FileName = "hactool.exe",
+                            Arguments = "-k keys.txt --romfsdir=data meta"
+                        };
+                        process.Start();
+                        process.WaitForExit();
+
+                        if (File.Exists("data\\control.nacp"))
+                        {
+                            byte[] source = File.ReadAllBytes("data\\control.nacp");
+                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(12288).Take(4096).ToArray());
+                            for (int i = 0; i < NACP.NACP_Strings.Length; i++)
+                            {
+                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 768).Take(768).ToArray());
+                                if (NACP.NACP_Strings[i].Check != 0)
                                 {
-                                    using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
+                                    CB_RegionName.Items.Add(Language[i]);
+                                    try
                                     {
-                                        Icons[i] = new Bitmap(original);
+                                        using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
+                                        {
+                                            Icons[i] = new Bitmap(original);
+                                        }
                                     }
+                                    catch
+                                    {
+                                        // using bad coding practices as a temporary fix until someone can figure out the problem
+                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?)
+                                        CB_RegionName.Items.Remove(Language[i]);
+                                    }
+                                    PB_GameIcon.BackgroundImage = Icons[i];
                                 }
-                                catch
-                                {
-                                    // using bad coding practices as a temporary fix until someone can figure out the problem
-                                    // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?)
-                                    CB_RegionName.Items.Remove(Language[i]);
-                                }
-								PB_GameIcon.BackgroundImage = Icons[i];
-							}
-						}
-						TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
-						TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd;
-						if (TB_ProdCode.Text == "")
-						{
-							TB_ProdCode.Text = "No Prod. ID";
-						}
-						File.Delete("meta");
-						Directory.Delete("data", true);
-					}
-                    try
-                    {
-                        CB_RegionName.SelectedIndex = 0;
+                            }
+                            TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
+                            TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd;
+                            if (TB_ProdCode.Text == "")
+                            {
+                                TB_ProdCode.Text = "No Prod. ID";
+                            }
+                            try
+                            {
+                                File.Delete("meta");
+                            }
+                            catch { }
+                            try
+                            {
+                                Directory.Delete("data", true);
+                            }
+                            catch { }
+
+                            CB_RegionName.SelectedIndex = 0;
+                            break;
+                        }
                     }
-					catch
-                    {
-                        // temporary fix until a dev can add card2 support
-                        // Problem: 'meta' file is empty because Card2 stores metadata in a different location
-                        File.Delete("meta");
-                        TB_GameRev.Text = "???";
-                        TB_ProdCode.Text = "???";
-                        CB_RegionName.Enabled = false;
-                        TB_Name.Text = "???";
-                        TB_Dev.Text = "???";
-                        msgFlag = true;
-                    }
+                    fileStream.Close();	
 				}
 			}
 			else
@@ -370,10 +370,6 @@ namespace XCI_Explorer
 				TB_Dev.Text = Mkey + " not found";
 				TB_Name.Text = Mkey + " not found";
 			}
-            if (msgFlag)
-            {
-                MessageBox.Show("Some features may not supported for this release [CARD2]");
-            }
         }
 
 		private void LoadNCAData()
@@ -468,16 +464,6 @@ namespace XCI_Explorer
 					gameNcaSize = SecureSize[k];
 					gameNcaOffset = SecureOffset[k];
 					num3 = SecureOffset[k];
-				}
-			}
-			num3 = -9223372036854775808L;
-			for (int l = 0; l < NormalSize.Length; l++)
-			{
-				if (NormalSize[l] > num3)
-				{
-					metadataNcaSize = NormalSize[l];
-					metadataNcaOffset = NormalOffset[l];
-					num3 = NormalSize[l];
 				}
 			}
 			PFS0Offset = gameNcaOffset + 32768;
