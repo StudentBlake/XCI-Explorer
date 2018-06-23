@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
-    <AssemblyName>XCI-Explorer-v1.1.0.0</AssemblyName>
+    <AssemblyName>XCI-Explorer</AssemblyName>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
@@ -71,6 +71,11 @@
     <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
     <Compile Include="XTSSharp\XtsSectorStream.cs" />
     <Compile Include="XTSSharp\XtsStream.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XCI_Explorer\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
