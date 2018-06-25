@@ -2,27 +2,29 @@
 
 [Original Release](https://www.maxconsole.com/threads/exclusive-xci-explorer-released-for-switch-game-cartridge-backups.47046/)
 
-View contents of XCI files and more
+View contents of XCI files and more!
 
 ## Features
 * View metadata
-* View partitions
-* Compare hashes
+* Explore partitions
+* Check NCA hashes
 * Extract NCA
 * Modify cert
 
 ## Requirements
 * Visual Studio 2017
-* [Hactool](https://github.com/SciresM/hactool/releases) (optional)
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) (optional)
+* [Hactool](https://github.com/SciresM/hactool/releases) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/hactool.zip))
+* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/hactool.zip))
 
-![program](https://i.imgur.com/xt6VpN7.jpg)
-
+Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
+:-------------------------:|:-------------------------:
+![main](https://imgur.com/NdYOcgW.jpg) | ![partitions](https://imgur.com/ehPoPWB.jpg)
 
 ## Build Instructions
-* Open XCI Explorer.sln
+* Open `XCI Explorer.sln`
 * Build -> Build Solution
-* Add hactool + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
+* Add hactool.exe + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
+* Run `XCI-Explorer.exe`
 
 ## Special Thanks
 Addition of CARD2 and hash support provided by klks
