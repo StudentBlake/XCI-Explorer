@@ -341,7 +341,7 @@ namespace XCI_Explorer
                                     catch
                                     {
                                         // using bad coding practices as a temporary fix until someone can figure out the problem
-                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?)
+                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?) [1-2 Switch]
                                         CB_RegionName.Items.Remove(Language[i]);
                                     }
                                     PB_GameIcon.BackgroundImage = Icons[i];
@@ -508,7 +508,16 @@ namespace XCI_Explorer
             fileStream.Read(array3, 0, 16);
             PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
             PFS0.PFS0_Entry[] array8;
-            array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            try
+            {
+                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            }
+            catch
+            {
+                //Problem: Some games cause an overflow [Rocket League]
+                //This ruins the boot.psf0 entry in partitions
+                array8 = new PFS0.PFS0_Entry[2];
+            }
             for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++)
             {
                 fileStream.Position = PFS0Offset + 16 + 24 * m;
