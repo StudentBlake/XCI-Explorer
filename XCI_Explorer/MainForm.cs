@@ -289,16 +289,6 @@ namespace XCI_Explorer
                                             PB_GameIcon.BackgroundImage = Icons[i];
                                         }
                                     }
-<<<<<<< HEAD
-=======
-                                    catch
-                                    {
-                                        // using bad coding practices as a temporary fix until someone can figure out the problem
-                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?) [1-2 Switch]
-                                        CB_RegionName.Items.Remove(Language[i]);
-                                    }
-                                    PB_GameIcon.BackgroundImage = Icons[i];
->>>>>>> ee7864e453dc32866f78efc55d7dfe3c5cc66907
                                 }
                             }
                             TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
