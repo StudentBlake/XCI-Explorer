@@ -273,10 +273,10 @@ namespace XCI_Explorer
                         if (File.Exists("data\\control.nacp"))
                         {
                             byte[] source = File.ReadAllBytes("data\\control.nacp");
-                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(12288).Take(4096).ToArray());
+                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
                             for (int i = 0; i < NACP.NACP_Strings.Length; i++)
                             {
-                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 768).Take(768).ToArray());
+                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
                                 if (NACP.NACP_Strings[i].Check != 0)
                                 {
                                     CB_RegionName.Items.Add(Language[i]);
@@ -1276,6 +1276,7 @@ namespace XCI_Explorer
             // TV_Partitions
             // 
             this.TV_Partitions.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TV_Partitions.HideSelection = false;
             this.TV_Partitions.Location = new System.Drawing.Point(3, 3);
             this.TV_Partitions.Name = "TV_Partitions";
             this.TV_Partitions.Size = new System.Drawing.Size(341, 361);

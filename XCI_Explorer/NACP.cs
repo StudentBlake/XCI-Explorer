@@ -35,8 +35,8 @@ namespace XCI_Explorer
 			public NACP_Data(byte[] data)
 			{
 				Data = data;
-				GameVer = Encoding.UTF8.GetString(Data.Skip(96).Take(16).ToArray());
-				GameProd = Encoding.UTF8.GetString(Data.Skip(168).Take(8).ToArray());
+				GameVer = Encoding.UTF8.GetString(Data.Skip(0x60).Take(16).ToArray());
+				GameProd = Encoding.UTF8.GetString(Data.Skip(0xA8).Take(8).ToArray());
 			}
 		}
 
