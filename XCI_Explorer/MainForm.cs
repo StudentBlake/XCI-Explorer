@@ -724,9 +724,7 @@ namespace XCI_Explorer
         private void CB_RegionName_SelectedIndexChanged(object sender, EventArgs e)
         {
             int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
-            PB_GameIcon.BackgroundImage = null;
-            if (Icons[num] != null)
-                PB_GameIcon.BackgroundImage = Icons[num];
+            PB_GameIcon.BackgroundImage = Icons[num];
             TB_Name.Text = NACP.NACP_Strings[num].GameName;
             TB_Dev.Text = NACP.NACP_Strings[num].GameAuthor;
         }
