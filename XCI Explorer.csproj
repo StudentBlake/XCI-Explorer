@@ -72,10 +72,5 @@
     <Compile Include="XTSSharp\XtsSectorStream.cs" />
     <Compile Include="XTSSharp\XtsStream.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="XCI_Explorer\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
