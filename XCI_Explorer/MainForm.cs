@@ -167,6 +167,18 @@ namespace XCI_Explorer
                 return false;
             }
         }
+        private void ProcessFile()
+        {
+            if (CheckXCI())
+            {
+                LoadXCI();
+            }
+            else
+            {
+                TB_File.Text = null;
+                MessageBox.Show("Unsupported file.");
+            }
+        }
 
         private void B_LoadROM_Click(object sender, EventArgs e)
         {
@@ -175,15 +187,7 @@ namespace XCI_Explorer
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 TB_File.Text = openFileDialog.FileName;
-                if (CheckXCI())
-                {
-                    LoadXCI();
-                }
-                else
-                {
-                    TB_File.Text = null;
-                    MessageBox.Show("Unsupported file.");
-                }
+                ProcessFile();
             }
         }
 
@@ -847,11 +851,14 @@ namespace XCI_Explorer
             // 
             // TB_File
             // 
+            this.TB_File.AllowDrop = true;
             this.TB_File.Location = new System.Drawing.Point(85, 13);
             this.TB_File.Name = "TB_File";
             this.TB_File.ReadOnly = true;
             this.TB_File.Size = new System.Drawing.Size(258, 20);
             this.TB_File.TabIndex = 1;
+            this.TB_File.DragDrop += new System.Windows.Forms.DragEventHandler(this.TB_File_DragDrop);
+            this.TB_File.DragEnter += new System.Windows.Forms.DragEventHandler(this.TB_File_DragEnter);
             // 
             // TABC_Main
             // 
@@ -1273,6 +1280,7 @@ namespace XCI_Explorer
             // 
             // MainForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 529);
@@ -1312,6 +1320,25 @@ namespace XCI_Explorer
             if (betterTreeNode.Offset != -1)
             {
                 Clipboard.SetText(betterTreeNode.ActualHash);
+            }
+        }
+
+        private void TB_File_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            TB_File.Text = files[0];
+            ProcessFile();
+        }
+
+        private void TB_File_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
             }
         }
     }
