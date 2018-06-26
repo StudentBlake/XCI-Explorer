@@ -160,7 +160,7 @@ namespace XCI_Explorer
         public MainForm()
         {
             InitializeComponent();
-            this.Text = "XCI Explorer v1.2";
+            this.Text = "XCI Explorer v1.2.1";
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
             LB_DataSize.Text = "";
@@ -500,7 +500,7 @@ namespace XCI_Explorer
                 {
                     gameNcaSize = SecureSize[k];
                     gameNcaOffset = SecureOffset[k];
-                    num3 = SecureOffset[k];
+                    num3 = SecureSize[k];
                 }
             }
             PFS0Offset = gameNcaOffset + 32768;
