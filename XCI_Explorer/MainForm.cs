@@ -8,6 +8,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Text;
 using System.Security.Cryptography;
+using System.Reflection;
+
 using XCI_Explorer.Helpers;
 using XTSSharp;
 
@@ -36,121 +38,63 @@ namespace XCI_Explorer
         };
 
         private Image[] Icons = new Image[16];
-
         private long[] SecureSize;
-
         private long[] NormalSize;
-
         private long[] SecureOffset;
-
         private long[] NormalOffset;
-
         private long gameNcaOffset;
-
         private long gameNcaSize;
-
         private long PFS0Offset;
-
         private long PFS0Size;
-
         private long selectedOffset;
-
         private long selectedSize;
-
         public List<char> chars = new List<char>();
-
         public byte[] NcaHeaderEncryptionKey1_Prod;
-
         public byte[] NcaHeaderEncryptionKey2_Prod;
-
         public string Mkey;
-
         public double UsedSize;
-
         private TreeViewFileSystem TV_Parti;
-
         private BetterTreeNode rootNode;
-
         private IContainer components;
-
         private Button B_LoadROM;
-
         private TabControl TABC_Main;
-
         private TabPage TABP_XCI;
-
         private TabPage tabPage2;
-
         private TreeView TV_Partitions;
-
         private TextBox TB_SDKVer;
-
         private Label label3;
-
         private TextBox TB_Capacity;
-
         private Label label2;
-
         private Label label1;
-
         private TextBox TB_TID;
-
         private TextBox TB_MKeyRev;
-
         private Label label4;
-
         private TextBox TB_ExactUsedSpace;
-
         private TextBox TB_ROMExactSize;
-
         private TextBox TB_UsedSpace;
-
         private TextBox TB_ROMSize;
-
         private Label label6;
-
         private Label label5;
-
         private TextBox TB_GameRev;
-
         private Label label7;
-
         private GroupBox groupBox1;
-
         private Button B_ClearCert;
-
         private Button B_ImportCert;
-
         private Button B_ExportCert;
-
         private ComboBox CB_RegionName;
-
         private TextBox TB_ProdCode;
-
         private Label label8;
-
         private GroupBox groupBox2;
-
         private TextBox TB_Dev;
-
         private Label label10;
-
         private TextBox TB_Name;
-
         private Label label9;
-
         private PictureBox PB_GameIcon;
-
         private Button B_ViewCert;
-
         public TextBox TB_File;
-
         private Label LB_SelectedData;
-
         private Label LB_DataOffset;
-
         private Label LB_DataSize;
-
         private Button B_Extract;
         private Label LB_ExpectedHash;
         private Label LB_ActualHash;
@@ -160,7 +104,8 @@ namespace XCI_Explorer
         public MainForm()
         {
             InitializeComponent();
-            this.Text = "XCI Explorer v1.2.1";
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            this.Text = "XCI Explorer " + assemblyVersion;
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
             LB_DataSize.Text = "";
