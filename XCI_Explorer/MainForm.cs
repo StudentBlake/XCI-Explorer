@@ -273,27 +273,22 @@ namespace XCI_Explorer
                         if (File.Exists("data\\control.nacp"))
                         {
                             byte[] source = File.ReadAllBytes("data\\control.nacp");
-                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(12288).Take(4096).ToArray());
+                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
                             for (int i = 0; i < NACP.NACP_Strings.Length; i++)
                             {
-                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 768).Take(768).ToArray());
+                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
                                 if (NACP.NACP_Strings[i].Check != 0)
                                 {
                                     CB_RegionName.Items.Add(Language[i]);
-                                    try
+                                    string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                    if (File.Exists(icon_filename))
                                     {
-                                        using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
+                                        using (Bitmap original = new Bitmap(icon_filename))
                                         {
                                             Icons[i] = new Bitmap(original);
+                                            PB_GameIcon.BackgroundImage = Icons[i];
                                         }
                                     }
-                                    catch
-                                    {
-                                        // using bad coding practices as a temporary fix until someone can figure out the problem
-                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?) [1-2 Switch]
-                                        CB_RegionName.Items.Remove(Language[i]);
-                                    }
-                                    PB_GameIcon.BackgroundImage = Icons[i];
                                 }
                             }
                             TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
@@ -1272,6 +1267,7 @@ namespace XCI_Explorer
             // TV_Partitions
             // 
             this.TV_Partitions.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TV_Partitions.HideSelection = false;
             this.TV_Partitions.Location = new System.Drawing.Point(3, 3);
             this.TV_Partitions.Name = "TV_Partitions";
             this.TV_Partitions.Size = new System.Drawing.Size(341, 361);
