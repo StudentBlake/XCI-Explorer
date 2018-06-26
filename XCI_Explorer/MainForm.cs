@@ -280,20 +280,15 @@ namespace XCI_Explorer
                                 if (NACP.NACP_Strings[i].Check != 0)
                                 {
                                     CB_RegionName.Items.Add(Language[i]);
-                                    try
+                                    string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                    if (File.Exists(icon_filename))
                                     {
-                                        using (Bitmap original = new Bitmap("data\\icon_" + Language[i].Replace(" ", "") + ".dat"))
+                                        using (Bitmap original = new Bitmap(icon_filename))
                                         {
                                             Icons[i] = new Bitmap(original);
+                                            PB_GameIcon.BackgroundImage = Icons[i];
                                         }
                                     }
-                                    catch
-                                    {
-                                        // using bad coding practices as a temporary fix until someone can figure out the problem
-                                        // Problem: Doesn't find icon dat for some supported languages (info located somewhere else?)
-                                        CB_RegionName.Items.Remove(Language[i]);
-                                    }
-                                    PB_GameIcon.BackgroundImage = Icons[i];
                                 }
                             }
                             TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
@@ -720,7 +715,9 @@ namespace XCI_Explorer
         private void CB_RegionName_SelectedIndexChanged(object sender, EventArgs e)
         {
             int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
-            PB_GameIcon.BackgroundImage = Icons[num];
+            PB_GameIcon.BackgroundImage = null;
+            if (Icons[num] != null)
+                PB_GameIcon.BackgroundImage = Icons[num];
             TB_Name.Text = NACP.NACP_Strings[num].GameName;
             TB_Dev.Text = NACP.NACP_Strings[num].GameAuthor;
         }
