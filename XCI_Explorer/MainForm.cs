@@ -105,7 +105,7 @@ namespace XCI_Explorer
         {
             InitializeComponent();
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            this.Text = "XCI Explorer " + assemblyVersion;
+            this.Text = "XCI Explorer v" + assemblyVersion;
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
             LB_DataSize.Text = "";
@@ -457,16 +457,7 @@ namespace XCI_Explorer
             fileStream.Read(array3, 0, 16);
             PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
             PFS0.PFS0_Entry[] array8;
-            try
-            {
-                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
-            }
-            catch
-            {
-                //Problem: Some games cause an overflow [Rocket League]
-                //This ruins the boot.psf0 entry in partitions
-                array8 = new PFS0.PFS0_Entry[2];
-            }
+            array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
             for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++)
             {
                 fileStream.Position = PFS0Offset + 16 + 24 * m;
