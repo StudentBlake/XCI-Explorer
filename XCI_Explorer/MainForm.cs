@@ -8,6 +8,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Text;
 using System.Security.Cryptography;
+using System.Reflection;
+
 using XCI_Explorer.Helpers;
 using XTSSharp;
 
@@ -36,121 +38,63 @@ namespace XCI_Explorer
         };
 
         private Image[] Icons = new Image[16];
-
         private long[] SecureSize;
-
         private long[] NormalSize;
-
         private long[] SecureOffset;
-
         private long[] NormalOffset;
-
         private long gameNcaOffset;
-
         private long gameNcaSize;
-
         private long PFS0Offset;
-
         private long PFS0Size;
-
         private long selectedOffset;
-
         private long selectedSize;
-
         public List<char> chars = new List<char>();
-
         public byte[] NcaHeaderEncryptionKey1_Prod;
-
         public byte[] NcaHeaderEncryptionKey2_Prod;
-
         public string Mkey;
-
         public double UsedSize;
-
         private TreeViewFileSystem TV_Parti;
-
         private BetterTreeNode rootNode;
-
         private IContainer components;
-
         private Button B_LoadROM;
-
         private TabControl TABC_Main;
-
         private TabPage TABP_XCI;
-
         private TabPage tabPage2;
-
         private TreeView TV_Partitions;
-
         private TextBox TB_SDKVer;
-
         private Label label3;
-
         private TextBox TB_Capacity;
-
         private Label label2;
-
         private Label label1;
-
         private TextBox TB_TID;
-
         private TextBox TB_MKeyRev;
-
         private Label label4;
-
         private TextBox TB_ExactUsedSpace;
-
         private TextBox TB_ROMExactSize;
-
         private TextBox TB_UsedSpace;
-
         private TextBox TB_ROMSize;
-
         private Label label6;
-
         private Label label5;
-
         private TextBox TB_GameRev;
-
         private Label label7;
-
         private GroupBox groupBox1;
-
         private Button B_ClearCert;
-
         private Button B_ImportCert;
-
         private Button B_ExportCert;
-
         private ComboBox CB_RegionName;
-
         private TextBox TB_ProdCode;
-
         private Label label8;
-
         private GroupBox groupBox2;
-
         private TextBox TB_Dev;
-
         private Label label10;
-
         private TextBox TB_Name;
-
         private Label label9;
-
         private PictureBox PB_GameIcon;
-
         private Button B_ViewCert;
-
         public TextBox TB_File;
-
         private Label LB_SelectedData;
-
         private Label LB_DataOffset;
-
         private Label LB_DataSize;
-
         private Button B_Extract;
         private Label LB_ExpectedHash;
         private Label LB_ActualHash;
@@ -160,7 +104,8 @@ namespace XCI_Explorer
         public MainForm()
         {
             InitializeComponent();
-            this.Text = "XCI Explorer v1.2";
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            this.Text = "XCI Explorer " + assemblyVersion;
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
             LB_DataSize.Text = "";
@@ -222,6 +167,18 @@ namespace XCI_Explorer
                 return false;
             }
         }
+        private void ProcessFile()
+        {
+            if (CheckXCI())
+            {
+                LoadXCI();
+            }
+            else
+            {
+                TB_File.Text = null;
+                MessageBox.Show("Unsupported file.");
+            }
+        }
 
         private void B_LoadROM_Click(object sender, EventArgs e)
         {
@@ -230,15 +187,7 @@ namespace XCI_Explorer
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 TB_File.Text = openFileDialog.FileName;
-                if (CheckXCI())
-                {
-                    LoadXCI();
-                }
-                else
-                {
-                    TB_File.Text = null;
-                    MessageBox.Show("Unsupported file.");
-                }
+                ProcessFile();
             }
         }
 
@@ -500,7 +449,7 @@ namespace XCI_Explorer
                 {
                     gameNcaSize = SecureSize[k];
                     gameNcaOffset = SecureOffset[k];
-                    num3 = SecureOffset[k];
+                    num3 = SecureSize[k];
                 }
             }
             PFS0Offset = gameNcaOffset + 32768;
@@ -911,11 +860,14 @@ namespace XCI_Explorer
             // 
             // TB_File
             // 
+            this.TB_File.AllowDrop = true;
             this.TB_File.Location = new System.Drawing.Point(85, 13);
             this.TB_File.Name = "TB_File";
             this.TB_File.ReadOnly = true;
             this.TB_File.Size = new System.Drawing.Size(258, 20);
             this.TB_File.TabIndex = 1;
+            this.TB_File.DragDrop += new System.Windows.Forms.DragEventHandler(this.TB_File_DragDrop);
+            this.TB_File.DragEnter += new System.Windows.Forms.DragEventHandler(this.TB_File_DragEnter);
             // 
             // TABC_Main
             // 
@@ -1337,6 +1289,7 @@ namespace XCI_Explorer
             // 
             // MainForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 529);
@@ -1376,6 +1329,25 @@ namespace XCI_Explorer
             if (betterTreeNode.Offset != -1)
             {
                 Clipboard.SetText(betterTreeNode.ActualHash);
+            }
+        }
+
+        private void TB_File_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            TB_File.Text = files[0];
+            ProcessFile();
+        }
+
+        private void TB_File_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
             }
         }
     }
