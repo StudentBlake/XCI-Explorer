@@ -232,6 +232,7 @@ namespace XCI_Explorer
             TB_Name.Text = "";
             TB_Dev.Text = "";
             PB_GameIcon.BackgroundImage = null;
+            Array.Clear(Icons, 0, Icons.Length);
             if (getMKey())
             {
                 using (FileStream fileStream = File.OpenRead(TB_File.Text))
