@@ -115,12 +115,27 @@ namespace XCI_Explorer
 
             if (!File.Exists("keys.txt"))
             {
-                MessageBox.Show("keys.txt is missing.");
-                Environment.Exit(0);
+                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    Process process = new Process();
+                    process.StartInfo = new ProcessStartInfo
+                    {
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        FileName = "Get-keys.txt.bat"
+                    };
+                    process.Start();
+                    process.WaitForExit();
+                }
+
+                if (!File.Exists("keys.txt"))
+                {
+                    MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in this location.");
+                    Environment.Exit(0);
+                }
             }
             if (!File.Exists("hactool.exe"))
             {
-                MessageBox.Show("hactool is missing.");
+                MessageBox.Show("hactool.exe is missing.");
                 Environment.Exit(0);
             }
             getKey();
@@ -725,7 +740,7 @@ namespace XCI_Explorer
         {
             if (Util.checkFile(TB_File.Text))
             {
-                if (MessageBox.Show("Trim XCI ?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
                     {
