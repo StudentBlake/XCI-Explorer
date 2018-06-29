@@ -1,6 +1,6 @@
 # XCI Explorer
 
-[Original Release](https://www.maxconsole.com/threads/exclusive-xci-explorer-released-for-switch-game-cartridge-backups.47046/)
+[Original MaxConsole Release](https://www.maxconsole.com/threads/exclusive-xci-explorer-released-for-switch-game-cartridge-backups.47046/)
 
 View contents of XCI files and more!
 
@@ -13,8 +13,8 @@ View contents of XCI files and more!
 
 ## Requirements
 * Visual Studio 2017
-* [Hactool](https://github.com/SciresM/hactool/releases) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/hactool.zip))
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/hactool.zip))
+* [Hactool](https://github.com/SciresM/hactool/releases)
+* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
 
 Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 :-------------------------:|:-------------------------:
@@ -27,9 +27,9 @@ Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 * Run `XCI-Explorer.exe`
 
 ## Special Thanks
-Addition of CARD2 and hash support provided by klks
+klks - CARD2, Hash Validation, bug fixes
 
 ## Disclaimer
-This is not my original work. I just decompiled the rogue executable floating around and made minor changes. 
+This is not my original work. I just decompiled the executable and made minor changes.
 
 I am NOT a developer and this has NOT been extensively tested!
