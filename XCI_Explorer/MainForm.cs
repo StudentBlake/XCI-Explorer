@@ -115,7 +115,7 @@ namespace XCI_Explorer
 
             if (!File.Exists("keys.txt"))
             {
-                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     Process process = new Process();
                     process.StartInfo = new ProcessStartInfo
