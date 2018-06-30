@@ -99,6 +99,7 @@ namespace XCI_Explorer
         private Label LB_ExpectedHash;
         private Label LB_ActualHash;
         private Label LB_HashedRegionSize;
+        private BackgroundWorker backgroundWorker1;
         private Button B_TrimXCI;
 
         public MainForm()
@@ -511,7 +512,10 @@ namespace XCI_Explorer
 
                 LB_DataOffset.Text = "Offset: 0x" + selectedOffset.ToString("X");
                 LB_SelectedData.Text = e.Node.Text;
-                B_Extract.Enabled = true;
+                if (backgroundWorker1.IsBusy != true)
+                {
+                    B_Extract.Enabled = true;
+                }
                 string[] array = new string[5]
                 {
                     "B",
@@ -684,23 +688,16 @@ namespace XCI_Explorer
             saveFileDialog.FileName = LB_SelectedData.Text;
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                using (FileStream fileStream = File.OpenRead(TB_File.Text))
+                if (backgroundWorker1.IsBusy != true)
                 {
-                    using (FileStream fileStream2 = File.OpenWrite(saveFileDialog.FileName))
-                    {
-                        new BinaryReader(fileStream);
-                        new BinaryWriter(fileStream2);
-                        fileStream.Position = selectedOffset;
-                        byte[] buffer = new byte[8192];
-                        long num = selectedSize;
-                        int num2;
-                        while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
-                        {
-                            fileStream2.Write(buffer, 0, num2);
-                            num -= num2;
-                        }
-                        fileStream.Close();
-                    }
+                    B_Extract.Enabled = false;
+                    B_LoadROM.Enabled = false;
+                    B_TrimXCI.Enabled = false;
+
+                    // Start the asynchronous operation.
+                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
+
+                    MessageBox.Show("Extracting NCA\nPlease wait...");
                 }
             }
         }
@@ -787,6 +784,90 @@ namespace XCI_Explorer
             }
         }
 
+        private void LB_ExpectedHash_DoubleClick(object sender, EventArgs e)
+        {
+            BetterTreeNode betterTreeNode = (BetterTreeNode)TV_Partitions.SelectedNode;
+            if (betterTreeNode.Offset != -1)
+            {
+                Clipboard.SetText(betterTreeNode.ExpectedHash);
+            }
+        }
+
+        private void LB_ActualHash_DoubleClick(object sender, EventArgs e)
+        {
+            BetterTreeNode betterTreeNode = (BetterTreeNode)TV_Partitions.SelectedNode;
+            if (betterTreeNode.Offset != -1)
+            {
+                Clipboard.SetText(betterTreeNode.ActualHash);
+            }
+        }
+
+        private void TB_File_DragDrop(object sender, DragEventArgs e)
+        {
+            if (backgroundWorker1.IsBusy != true)
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                TB_File.Text = files[0];
+                ProcessFile();
+            }
+        }
+
+        private void TB_File_DragEnter(object sender, DragEventArgs e)
+        {
+            if (backgroundWorker1.IsBusy != true)
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    e.Effect = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            }
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            string fileName = (string)e.Argument;
+
+            using (FileStream fileStream = File.OpenRead(TB_File.Text))
+            {
+                using (FileStream fileStream2 = File.OpenWrite(fileName))
+                {
+                    new BinaryReader(fileStream);
+                    new BinaryWriter(fileStream2);
+                    fileStream.Position = selectedOffset;
+                    byte[] buffer = new byte[8192];
+                    long num = selectedSize;
+                    int num2;
+                    while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
+                    {
+                        fileStream2.Write(buffer, 0, num2);
+                        num -= num2;
+                    }
+                    fileStream.Close();
+                }
+            }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            B_Extract.Enabled = true;
+            B_LoadROM.Enabled = true;
+            B_TrimXCI.Enabled = true;
+
+            if (e.Error != null)
+            {
+                MessageBox.Show("Error: " + e.Error.Message);
+            }
+            else
+            {
+                MessageBox.Show("Done extracting NCA!");
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && components != null)
@@ -842,6 +923,7 @@ namespace XCI_Explorer
             this.LB_DataOffset = new System.Windows.Forms.Label();
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -1290,6 +1372,11 @@ namespace XCI_Explorer
             this.TV_Partitions.TabIndex = 0;
             this.TV_Partitions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TV_Partitions_AfterSelect);
             // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -1315,43 +1402,6 @@ namespace XCI_Explorer
             this.ResumeLayout(false);
             this.PerformLayout();
 
-        }
-
-        private void LB_ExpectedHash_DoubleClick(object sender, EventArgs e)
-        {
-            BetterTreeNode betterTreeNode = (BetterTreeNode)TV_Partitions.SelectedNode;
-            if (betterTreeNode.Offset != -1)
-            {
-                Clipboard.SetText(betterTreeNode.ExpectedHash);
-            }
-        }
-
-        private void LB_ActualHash_DoubleClick(object sender, EventArgs e)
-        {
-            BetterTreeNode betterTreeNode = (BetterTreeNode)TV_Partitions.SelectedNode;
-            if (betterTreeNode.Offset != -1)
-            {
-                Clipboard.SetText(betterTreeNode.ActualHash);
-            }
-        }
-
-        private void TB_File_DragDrop(object sender, DragEventArgs e)
-        {
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            TB_File.Text = files[0];
-            ProcessFile();
-        }
-
-        private void TB_File_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
         }
     }
 }
