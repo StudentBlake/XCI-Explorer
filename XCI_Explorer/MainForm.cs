@@ -693,6 +693,8 @@ namespace XCI_Explorer
                     B_Extract.Enabled = false;
                     B_LoadROM.Enabled = false;
                     B_TrimXCI.Enabled = false;
+                    B_ImportCert.Enabled = false;
+                    B_ClearCert.Enabled = false;
 
                     // Start the asynchronous operation.
                     backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
@@ -857,6 +859,8 @@ namespace XCI_Explorer
             B_Extract.Enabled = true;
             B_LoadROM.Enabled = true;
             B_TrimXCI.Enabled = true;
+            B_ImportCert.Enabled = true;
+            B_ClearCert.Enabled = true;
 
             if (e.Error != null)
             {
