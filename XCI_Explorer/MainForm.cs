@@ -114,6 +114,10 @@ namespace XCI_Explorer
             LB_ActualHash.Text = "";
             LB_ExpectedHash.Text = "";
 
+            //MAC - Set Current Directory to application directory so it can find the keys
+            String startupPath = Application.StartupPath;
+            Directory.SetCurrentDirectory(startupPath);
+
             if (!File.Exists("keys.txt"))
             {
                 if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -140,6 +144,15 @@ namespace XCI_Explorer
                 Environment.Exit(0);
             }
             getKey();
+
+            //MAC - Set the double clicked file name into the UI and process file
+            String[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                TB_File.Text = args[1];
+                Application.DoEvents();
+                ProcessFile();
+            }
         }
 
         private void getKey()
