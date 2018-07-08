@@ -14,7 +14,7 @@ View contents of XCI files and more!
 ## Requirements
 * Visual Studio 2017
 * [Hactool](https://github.com/SciresM/hactool/releases)
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([or get them here](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
+* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
 
 Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 :-------------------------:|:-------------------------:
