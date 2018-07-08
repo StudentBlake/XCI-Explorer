@@ -18,18 +18,17 @@ View contents of XCI files and more!
 
 Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 :-------------------------:|:-------------------------:
-![main](https://imgur.com/NdYOcgW.jpg) | ![partitions](https://imgur.com/ehPoPWB.jpg)
+![main](https://imgur.com/tO5oPq4.jpg) | ![partitions](https://imgur.com/U7FpWr2.jpg)
 
 ## Build Instructions
-* Open `XCI Explorer.sln`
-* Build -> Build Solution
-* Add hactool.exe + dependencies + keys.txt to `XCI-Explorer/bin/Debug/` folder
-* Run `XCI-Explorer.exe`
+* Open **XCI Explorer.sln**
+* Change *Debug* to *Release* in the dropdown menu
+* Go to *Build*, then *Build Solution*
+* Extract **hactool.zip** to `XCI-Explorer/bin/Release/` folder
+* Run **XCI-Explorer.exe**
 
 ## Special Thanks
 klks - CARD2, Hash Validation, bug fixes
 
 ## Disclaimer
-This is not my original work. I just decompiled the executable and made minor changes.
-
-I am NOT a developer and this has NOT been extensively tested!
+This is not my original work. I just made minor changes with the help of others.
