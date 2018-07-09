@@ -126,7 +126,7 @@ namespace XCI_Explorer {
             if (!File.Exists("keys.txt")) {
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
-                        string keys = Encoding.UTF8.GetString(Convert.FromBase64String("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L2VrU0g5Ujh0"));
+                        string keys = Encoding.UTF8.GetString(Convert.FromBase64String("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L3BKTFJpUEZH"));
                         client.DownloadFile(@keys, "keys.txt");
                     }
                 }
