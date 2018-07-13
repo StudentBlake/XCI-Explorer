@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI Explorer", "XCI Explorer.csproj", "{89DBE891-22C7-40FF-A3D3-36F26224E09D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.Model", "XCI.Model\XCI.Model.csproj", "{F86D7939-90F5-495C-B32D-E0DC3A426375}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.XTSSharp", "XCI.XTSSharp\XCI.XTSSharp.csproj", "{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{89DBE891-22C7-40FF-A3D3-36F26224E09D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89DBE891-22C7-40FF-A3D3-36F26224E09D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89DBE891-22C7-40FF-A3D3-36F26224E09D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F86D7939-90F5-495C-B32D-E0DC3A426375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F86D7939-90F5-495C-B32D-E0DC3A426375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F86D7939-90F5-495C-B32D-E0DC3A426375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F86D7939-90F5-495C-B32D-E0DC3A426375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

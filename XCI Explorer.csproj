@@ -27,14 +27,14 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Be.Windows.Forms.HexBox">
+      <HintPath>packages\Be.Windows.Forms.HexBox.1.6.1\lib\net40\Be.Windows.Forms.HexBox.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms">
       <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</HintPath>
-    </Reference>
-    <Reference Include="Be.Windows.Forms.HexBox">
-      <HintPath>C:\Users\Blake\Desktop\XCIExplorer\Be.Windows.Forms.HexBox.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
       <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Drawing\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Drawing.dll</HintPath>
@@ -45,37 +45,34 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XCI_Explorer.Helpers\BetterBinaryReader.cs" />
-    <Compile Include="XCI_Explorer.Helpers\BetterTreeNode.cs" />
-    <Compile Include="XCI_Explorer.Properties\Resources.cs" />
-    <Compile Include="XCI_Explorer.Properties\Settings.cs" />
-    <Compile Include="XCI_Explorer\CertForm.cs">
+    <Compile Include="Helpers\BetterBinaryReader.cs" />
+    <Compile Include="Helpers\BetterTreeNode.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="Forms\CertificateView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="XCI_Explorer\HFS0.cs" />
-    <Compile Include="XCI_Explorer\MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="XCI_Explorer\NACP.cs" />
-    <Compile Include="XCI_Explorer\NCA.cs" />
-    <Compile Include="XCI_Explorer\PFS0.cs" />
-    <Compile Include="XCI_Explorer\Program.cs" />
-    <Compile Include="XCI_Explorer\TreeViewFileSystem.cs" />
-    <Compile Include="XCI_Explorer\Util.cs" />
-    <Compile Include="XCI_Explorer\XCI.cs" />
-    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
-    <Compile Include="XTSSharp\SectorStream.cs" />
-    <Compile Include="XTSSharp\Xts.cs" />
-    <Compile Include="XTSSharp\XtsAes128.cs" />
-    <Compile Include="XTSSharp\XtsAes256.cs" />
-    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
-    <Compile Include="XTSSharp\XtsSectorStream.cs" />
-    <Compile Include="XTSSharp\XtsStream.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Helpers\TreeViewFileSystem.cs" />
+    <Compile Include="Helpers\Util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="XCI_Explorer\MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="XCI.Model\XCI.Model.csproj">
+      <Project>{f86d7939-90f5-495c-b32d-e0dc3a426375}</Project>
+      <Name>XCI.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
