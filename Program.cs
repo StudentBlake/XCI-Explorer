@@ -1,14 +1,17 @@
 using System;
 using System.Windows.Forms;
-using Forms;
+using XCI.Explorer.Forms;
 
-internal static class Program
+namespace XCI.Explorer
 {
-    [STAThread]
-    private static void Main()
+    internal static class Program
     {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new MainForm());
+        [STAThread]
+        private static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
+        }
     }
 }

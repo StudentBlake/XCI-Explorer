@@ -1,6 +1,6 @@
 using System.Windows.Forms;
 
-namespace Helpers
+namespace XCI.Explorer.Helpers
 {
     public class TreeViewFileSystem
     {
