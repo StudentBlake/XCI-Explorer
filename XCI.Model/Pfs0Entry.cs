@@ -2,7 +2,7 @@ using System;
 
 namespace XCI.Model
 {
-    internal static partial class Pfs0
+    public static partial class Pfs0
     {
         public class Pfs0Entry
         {

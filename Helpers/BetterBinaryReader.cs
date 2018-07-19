@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Helpers
+namespace XCI.Explorer.Helpers
 {
     public class BetterBinaryReader : IDisposable
     {

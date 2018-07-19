@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace XCI.Model
 {
-    internal static partial class Hfs0
+    public static partial class Hfs0
     {
         public class Hsf0Entry
         {

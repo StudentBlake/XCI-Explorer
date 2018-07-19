@@ -4,7 +4,7 @@ using System.Text;
 
 namespace XCI.Model
 {
-    internal static partial class Hfs0
+    public static partial class Hfs0
     {
         public class Hfs0Header
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace XCI.Model
 {
-    internal static partial class Nca
+    public static partial class Nca
     {
         public class NcaHeader
         {

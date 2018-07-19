@@ -10,9 +10,11 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using Helpers;
+using XCI.Explorer.Helpers;
+using XCI.Model;
+using XCI.XTSSharp;
 
-namespace Forms
+namespace XCI.Explorer.Forms
 {
     public class MainForm : Form
     {
@@ -163,7 +165,7 @@ namespace Forms
 
         public MainForm()
         {
-            throw new NotImplementedException();
+           GenerateMainForm();
         }
 
         public sealed override string Text
@@ -179,8 +181,8 @@ namespace Forms
                 into x
                 where x.Length > 1
                 select x).ToDictionary(x => x[0].Trim(), x => x[1])["header_key"].Replace(" ", "");
-            NcaHeaderEncryptionKey1_Prod = Util.StringToByteArray(text.Remove(32, 32));
-            NcaHeaderEncryptionKey2_Prod = Util.StringToByteArray(text.Remove(0, 32));
+            NcaHeaderEncryptionKey1_Prod = Util.HexStringToByteArray(text.Remove(32, 32));
+            NcaHeaderEncryptionKey2_Prod = Util.HexStringToByteArray(text.Remove(0, 32));
         }
 
         public bool GetMasterKey()
@@ -370,7 +372,7 @@ namespace Forms
             TB_TID.Text = "0" + Nca.NcaHeaders[0].TitleId.ToString("X");
             TB_SDKVer.Text =
                 $"{Nca.NcaHeaders[0].SdkVersion4}.{Nca.NcaHeaders[0].SdkVersion3}.{Nca.NcaHeaders[0].SdkVersion2}.{Nca.NcaHeaders[0].SdkVersion1}";
-            TB_MKeyRev.Text = Util.GetMkey(Nca.NcaHeaders[0].MasterKeyRev);
+            TB_MKeyRev.Text = Util.GetMasterKey(Nca.NcaHeaders[0].MasterKeyRev);
         }
 
         //https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa
@@ -394,9 +396,11 @@ namespace Forms
         {
             TV_Partitions.Nodes.Clear();
             TV_Parti = new TreeViewFileSystem(TV_Partitions);
-            rootNode = new BetterTreeNode("root");
-            rootNode.Offset = -1L;
-            rootNode.Size = -1L;
+            rootNode = new BetterTreeNode("root")
+            {
+                Offset = -1L,
+                Size = -1L
+            };
             TV_Partitions.Nodes.Add(rootNode);
             var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
             var array = new Hfs0.Hsf0Entry[Hfs0.Hfs0Headers[0].FileCount];
@@ -597,9 +601,11 @@ namespace Forms
         {
             if (Util.CheckFile(TB_File.Text))
             {
-                var saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "gamecard_cert.dat (*.dat)|*.dat";
-                saveFileDialog.FileName = Path.GetFileName("gamecard_cert.dat");
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "gamecard_cert.dat (*.dat)|*.dat",
+                    FileName = Path.GetFileName("gamecard_cert.dat")
+                };
                 if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
                 var array = new byte[512];

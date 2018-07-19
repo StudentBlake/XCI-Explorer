@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Be.Windows.Forms;
 
-namespace Forms
+namespace XCI.Explorer.Forms
 {
     public class CertificateView : Form
     {
