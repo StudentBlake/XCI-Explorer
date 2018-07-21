@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.Model", "XCI.Model\XCI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.XTSSharp", "XCI.XTSSharp\XCI.XTSSharp.csproj", "{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.UnitTests", "..\XCI.UnitTests\XCI.UnitTests.csproj", "{48896167-9BE1-4424-8BD4-E22A5308CD38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI.UnitTests", "XCI.UnitTests\XCI.UnitTests.csproj", "{0DCF6FA0-6022-4DC8-803B-D8AFE4C9FE61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BD7F659-60F6-4EE1-8FF4-3405CCCC6872}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48896167-9BE1-4424-8BD4-E22A5308CD38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48896167-9BE1-4424-8BD4-E22A5308CD38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48896167-9BE1-4424-8BD4-E22A5308CD38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48896167-9BE1-4424-8BD4-E22A5308CD38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DCF6FA0-6022-4DC8-803B-D8AFE4C9FE61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DCF6FA0-6022-4DC8-803B-D8AFE4C9FE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DCF6FA0-6022-4DC8-803B-D8AFE4C9FE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DCF6FA0-6022-4DC8-803B-D8AFE4C9FE61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
