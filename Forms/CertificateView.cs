@@ -10,11 +10,9 @@ namespace XCI.Explorer.Forms
     {
         private readonly IContainer components;
         private HexBox _hbxHexView;
-        private MainForm mainForm;
 
-        public CertificateView(MainForm mainForm)
+        public CertificateView()
         {
-            this.mainForm = mainForm;
         }
 
         public CertificateView(MainForm mainForm, IContainer components)
