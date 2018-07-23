@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace XCI.Explorer.Helpers
 {
@@ -25,7 +27,7 @@ namespace XCI.Explorer.Helpers
             }
         }
 
-        public static string GetMasterKey(byte id)
+        public static string GetMasterKeyVersion(byte id)
         {
             switch (id)
             {
@@ -43,6 +45,50 @@ namespace XCI.Explorer.Helpers
                 default:
                     return "MasterKey unknown";
             }
+        }
+
+        public static readonly string[] Language = {
+            "American English",
+            "British English",
+            "Japanese",
+            "French",
+            "German",
+            "Latin American Spanish",
+            "Spanish",
+            "Italian",
+            "Dutch",
+            "Canadian French",
+            "Portuguese",
+            "Russian",
+            "Korean",
+            "Taiwanese",
+            "Chinese",
+            "???"
+        };
+
+        public static readonly string[] SizeCategories = {
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        };
+
+        public static string Sha256Bytes(byte[] ba)
+        {
+            var mySha256 = SHA256.Create();
+            var hashValue = mySha256.ComputeHash(ba);
+            return ByteArrayToString(hashValue);
+        }
+
+        //https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa
+        public static string ByteArrayToString(byte[] ba)
+        {
+            var hex = new StringBuilder(ba.Length * 2 + 2);
+            hex.Append("0x");
+            foreach (var b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
 
         public static bool CheckFile(string filepath)

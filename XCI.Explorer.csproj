@@ -49,7 +49,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTO\GameDto.cs" />
     <Compile Include="KeyHandler.cs" />
+    <Compile Include="Loader\ILoader.cs" />
+    <Compile Include="Loader\XciLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\BetterBinaryReader.cs" />
     <Compile Include="Helpers\BetterTreeNode.cs" />

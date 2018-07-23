@@ -10,7 +10,9 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
+using XCI.Explorer.DTO;
 using XCI.Explorer.Helpers;
+using XCI.Explorer.Loader;
 using XCI.Explorer.Properties;
 using XCI.Model;
 using XCI.XTSSharp;
@@ -53,32 +55,7 @@ namespace XCI.Explorer.Forms
         private Label label8;
         private Label label9;
 
-        private readonly string[] _language = {
-            "American English",
-            "British English",
-            "Japanese",
-            "French",
-            "German",
-            "Latin American Spanish",
-            "Spanish",
-            "Italian",
-            "Dutch",
-            "Canadian French",
-            "Portuguese",
-            "Russian",
-            "Korean",
-            "Taiwanese",
-            "Chinese",
-            "???"
-        };
-
-        private readonly string[] _sizeCategories = {
-            "B",
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-        };
+        
 
         private Label LB_ActualHash;
         private Label LB_DataOffset;
@@ -115,7 +92,8 @@ namespace XCI.Explorer.Forms
         private TreeViewFileSystem TV_Parti;
         private TreeView TV_Partitions;
         public double UsedSize;
-    public long GameNcaSize { get; private set; }
+        private GameDto _gameDto;
+        public long GameNcaSize { get; private set; }
 
         private void GenerateMainForm()
         {
@@ -699,28 +677,24 @@ namespace XCI.Explorer.Forms
 
         private void LoadXci()
         {
-            double num = new FileInfo(TB_File.Text).Length;
-            TB_ROMExactSize.Text = "(" + num + " bytes)";
-            var num2 = 0;
-            while (num >= 1024.0 && num2 < _sizeCategories.Length - 1)
-            {
-                num2++;
-                num /= 1024.0;
-            }
-            TB_ROMSize.Text = $"{num:0.##} {_sizeCategories[num2]}";
-            var num3 = UsedSize = Xci.XciHeaders[0].CardSize2 * 512 + 512;
-            TB_ExactUsedSpace.Text = "(" + num3 + " bytes)";
-            num2 = 0;
-            while (num3 >= 1024.0 && num2 < _sizeCategories.Length - 1)
-            {
-                num2++;
-                num3 /= 1024.0;
-            }
-            TB_UsedSpace.Text = $"{num3:0.##} {_sizeCategories[num2]}";
-            TB_Capacity.Text = Util.GetCapacity(Xci.XciHeaders[0].CardSize1);
-            LoadPartitons();
-            LoadNcaData();
-            LoadGameInfos();
+            _gameDto = new GameDto();
+            var loader = new XciLoader(_gameDto);
+
+            loader.LoadRom(TB_File.Text);
+            //LoadPartitons();
+            //LoadNcaData();
+            //LoadGameInfos();
+
+            PopulateForm(_gameDto);
+        }
+
+        private void PopulateForm(GameDto gameDto)
+        {
+            TB_ROMExactSize.Text = gameDto.ExactSize;
+            TB_ROMSize.Text = gameDto.Size;
+            TB_ExactUsedSpace.Text = gameDto.ExactUsedSpace;
+            TB_UsedSpace.Text = gameDto.UsedSpace;
+            TB_Capacity.Text = gameDto.Capacity;
         }
 
         private void LoadGameInfos()
@@ -779,8 +753,8 @@ namespace XCI.Explorer.Forms
                                     new Nacp.NacpString(source.Skip(i * 0x300).Take(0x300).ToArray());
                                 if (Nacp.NacpStrings[i].Check != 0)
                                 {
-                                    _cbRegionName.Items.Add(_language[i]);
-                                    var iconFilename = "data\\icon_" + _language[i].Replace(" ", "") + ".dat";
+                                    _cbRegionName.Items.Add(Util.Language[i]);
+                                    var iconFilename = "data\\icon_" + Util.Language[i].Replace(" ", "") + ".dat";
                                     if (File.Exists(iconFilename))
                                         using (var original = new Bitmap(iconFilename))
                                         {
@@ -822,36 +796,13 @@ namespace XCI.Explorer.Forms
             TB_TID.Text = "0" + Nca.NcaHeaders[0].TitleId.ToString("X");
             TB_SDKVer.Text =
                 $"{Nca.NcaHeaders[0].SdkVersion4}.{Nca.NcaHeaders[0].SdkVersion3}.{Nca.NcaHeaders[0].SdkVersion2}.{Nca.NcaHeaders[0].SdkVersion1}";
-            TB_MKeyRev.Text = Util.GetMasterKey(Nca.NcaHeaders[0].MasterKeyRev);
-        }
-
-        //https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa
-        public static string ByteArrayToString(byte[] ba)
-        {
-            var hex = new StringBuilder(ba.Length * 2 + 2);
-            hex.Append("0x");
-            foreach (var b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
-
-        public static string Sha256Bytes(byte[] ba)
-        {
-            var mySha256 = SHA256.Create();
-            var hashValue = mySha256.ComputeHash(ba);
-            return ByteArrayToString(hashValue);
+            TB_MKeyRev.Text = Util.GetMasterKeyVersion(Nca.NcaHeaders[0].MasterKeyRev);
         }
 
         private void LoadPartitons()
         {
-            TV_Partitions.Nodes.Clear();
-            TV_Parti = new TreeViewFileSystem(TV_Partitions);
-            rootNode = new BetterTreeNode("root")
-            {
-                Offset = -1L,
-                Size = -1L
-            };
-            TV_Partitions.Nodes.Add(rootNode);
+            CreateTreeViewFileSystem();
+
             var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
             var array = new Hfs0.Hsf0Entry[Hfs0.Hfs0Headers[0].FileCount];
             fileStream.Position = Xci.XciHeaders[0].Hfs0OffsetPartition + 16 + 64 * Hfs0.Hfs0Headers[0].FileCount;
@@ -875,10 +826,10 @@ namespace XCI.Explorer.Forms
                 var hashBuffer = new byte[array[i].HashedRegionSize];
                 fileStream.Position = offset;
                 fileStream.Read(hashBuffer, 0, array[i].HashedRegionSize);
-                var actualHash = Sha256Bytes(hashBuffer);
+                var actualHash = Util.Sha256Bytes(hashBuffer);
 
                 TV_Parti.AddFile(array[i].Name + ".hfs0", rootNode, offset, array[i].Size, array[i].HashedRegionSize,
-                    ByteArrayToString(array[i].Hash), actualHash);
+                    Util.ByteArrayToString(array[i].Hash), actualHash);
                 var betterTreeNode = TV_Parti.AddDir(array[i].Name, rootNode);
                 var array5 = new Hfs0.Hfs0Header[1];
                 fileStream.Position = array[i].Offset + num;
@@ -924,10 +875,10 @@ namespace XCI.Explorer.Forms
                     hashBuffer = new byte[array6[j].HashedRegionSize];
                     fileStream.Position = offset;
                     fileStream.Read(hashBuffer, 0, array6[j].HashedRegionSize);
-                    actualHash = Sha256Bytes(hashBuffer);
+                    actualHash = Util.Sha256Bytes(hashBuffer);
 
                     TV_Parti.AddFile(array6[j].Name, betterTreeNode, offset, array6[j].Size, array6[j].HashedRegionSize,
-                        ByteArrayToString(array6[j].Hash), actualHash);
+                        Util.ByteArrayToString(array6[j].Hash), actualHash);
                     var array7 = TV_Partitions.Nodes.Find(betterTreeNode.Text, true);
                     if (array7.Length != 0) TV_Parti.AddFile(array6[j].Name, (BetterTreeNode) array7[0], 0L, 0L);
                 }
@@ -969,6 +920,18 @@ namespace XCI.Explorer.Forms
                 if (array9.Length != 0) TV_Parti.AddFile(array8[n].Name, (BetterTreeNode) array9[0], 0L, 0L);
             }
             fileStream.Close();
+        }
+
+        private void CreateTreeViewFileSystem()
+        {
+            TV_Partitions.Nodes.Clear();
+            TV_Parti = new TreeViewFileSystem(TV_Partitions);
+            rootNode = new BetterTreeNode("root")
+            {
+                Offset = -1L,
+                Size = -1L
+            };
+            TV_Partitions.Nodes.Add(rootNode);
         }
 
         private void TV_Partitions_AfterSelect(object sender, TreeViewEventArgs e)
@@ -1160,7 +1123,7 @@ namespace XCI.Explorer.Forms
 
         private void CB_RegionName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var num = Array.FindIndex(_language,
+            var num = Array.FindIndex(Util.Language,
                 element => element.StartsWith(_cbRegionName.Text, StringComparison.Ordinal));
             PB_GameIcon.BackgroundImage = _icons[num];
             TB_Name.Text = Nacp.NacpStrings[num].GameName;
