@@ -9,10 +9,10 @@ using System.Windows.Forms;
 using System.Text;
 using System.Security.Cryptography;
 using System.Reflection;
-
 using XCI_Explorer.Helpers;
 using XTSSharp;
 using System.Net;
+using System.Xml.Linq;
 
 namespace XCI_Explorer {
     public class MainForm : Form {
@@ -188,7 +188,20 @@ namespace XCI_Explorer {
         }
 
         private void ProcessFile() {
-            if (CheckXCI()) {
+            if (Path.GetExtension(TB_File.Text).ToLower() == ".nsp") {
+                B_TrimXCI.Enabled = false;
+                B_ExportCert.Enabled = false;
+                B_ImportCert.Enabled = false;
+                B_ViewCert.Enabled = false;
+                B_ClearCert.Enabled = false;
+                LoadNSPMetadata();
+            }
+            else if (CheckXCI()) {
+                B_TrimXCI.Enabled = true;
+                B_ExportCert.Enabled = true;
+                B_ImportCert.Enabled = true;
+                B_ViewCert.Enabled = true;
+                B_ClearCert.Enabled = true;
                 LoadXCI();
             }
             else {
@@ -199,7 +212,7 @@ namespace XCI_Explorer {
 
         private void B_LoadROM_Click(object sender, EventArgs e) {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Switch XCI (*.xci)|*.xci|All files (*.*)|*.*";
+            openFileDialog.Filter = "Switch XCI/NSP (*.xci, *.nsp)|*.xci;*.nsp|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 TB_File.Text = openFileDialog.FileName;
                 ProcessFile();
@@ -236,6 +249,152 @@ namespace XCI_Explorer {
             LoadPartitionsOld();
             LoadNCAData();
             LoadGameInfos();
+        }
+
+        public void LoadNSPMetadata() {
+            CB_RegionName.Items.Clear();
+            CB_RegionName.Enabled = true;
+            TB_Name.Text = "";
+            TB_Dev.Text = "";
+            PB_GameIcon.BackgroundImage = null;
+            Array.Clear(Icons, 0, Icons.Length);
+            TV_Partitions.Nodes.Clear();
+            FileInfo fi = new FileInfo(TB_File.Text);
+            //Get File Size
+            string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
+            double num_fs = (double)fi.Length;
+            int num2_fs = 0;
+            TB_ROMExactSize.Text = "(" + num_fs.ToString() + " bytes)";
+            TB_ExactUsedSpace.Text = TB_ROMExactSize.Text;
+
+            while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                num2_fs++;
+                num_fs /= 1024.0;
+            }
+            TB_ROMSize.Text = $"{num_fs:0.##} {array_fs[num2_fs]}";
+            TB_UsedSpace.Text = TB_ROMSize.Text;
+
+            Process process = new Process();
+            try {
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-t pfs0 " + "\"" + TB_File.Text + "\"" + " --outdir=tmp"
+                };
+                process.Start();
+                process.WaitForExit();
+                process.Close();
+
+                List<string> listXML = new List<string>();
+                if (!Directory.Exists("tmp")) {
+                }
+                try {
+                    foreach (string f in Directory.GetFiles("tmp", "*.xml")) {
+                        listXML.Add(f);
+                        break;
+                    }
+                }
+                catch { }
+
+                XDocument xml = XDocument.Load(listXML.First());
+                TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
+                string ncaTarget = "";
+                foreach (XElement xe in xml.Descendants("Content")) {
+                    if (xe.Element("Type").Value != "Control") {
+                        continue;
+                    }
+                    ncaTarget = xe.Element("Id").Value + ".nca";
+                    break;
+                }
+                process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
+                };
+                process.Start();
+                process.WaitForExit();
+                process.Close();
+                byte[] flux = new byte[200];
+
+                byte[] source = File.ReadAllBytes("tmp\\control.nacp");
+                NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
+
+                //data.Region_Icon = new Dictionary<string, string>();
+                //data.Languagues = new List<string>();
+
+                for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
+                    NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
+                    if (NACP.NACP_Strings[i].Check != 0) {
+                        CB_RegionName.Items.Add(Language[i]);
+                        //string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                        string icon_filename = "tmp\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                        if (File.Exists(icon_filename)) {
+                            using (Bitmap original = new Bitmap(icon_filename)) {
+                                Icons[i] = new Bitmap(original);
+                                PB_GameIcon.BackgroundImage = Icons[i];
+                            }
+                        }
+                    }
+                }
+                TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
+                TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
+                if (TB_ProdCode.Text == "") {
+                    TB_ProdCode.Text = "No Prod. ID";
+                }
+
+                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                    if (NACP.NACP_Strings[z].GameName.Replace("\0", "") != "") {
+                        TB_Name.Text = NACP.NACP_Strings[z].GameName.Replace("\0", "");
+                        break;
+                    }
+                }
+                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                    if (NACP.NACP_Strings[z].GameAuthor.Replace("\0", "") != "") {
+                        TB_Dev.Text = NACP.NACP_Strings[z].GameAuthor.Replace("\0", "");
+                        break;
+                    }
+                }
+
+                //Lets get SDK Version, Distribution Type and Masterkey revision
+                //This is far from the best aproach, but its what we have for now
+                process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-k keys.txt tmp/" + ncaTarget,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                process.Start();
+                StreamReader sr = process.StandardOutput;
+
+                while (sr.Peek() >= 0) {
+                    string str;
+                    string[] strArray;
+                    str = sr.ReadLine();
+                    strArray = str.Split(':');
+                    if (strArray[0] == "SDK Version") {
+                        TB_SDKVer.Text = strArray[1].Trim();
+                    }
+                    /*else if (strArray[0] == "Distribution type") {
+                        data.DistributionType = strArray[1].Trim();
+                    }*/
+                    else if (strArray[0] == "Master Key Revision") {
+                        TB_MKeyRev.Text = "MasterKey" + strArray[1].Trim();
+                        break;
+                    }
+                }
+                process.WaitForExit();
+                process.Close();
+            }
+            catch { }
+            finally {
+                Directory.Delete("tmp", true);
+            }
+            TB_Capacity.Text = "eShop";
+            CB_RegionName.SelectedIndex = 0;
         }
 
         private void LoadGameInfos() {
@@ -541,7 +700,14 @@ namespace XCI_Explorer {
             fileStream.Position = PFS0Offset;
             fileStream.Read(array3, 0, 16);
             PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
-            PFS0.PFS0_Entry[] array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            PFS0.PFS0_Entry[] array8;
+            try {
+                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            }
+            catch (Exception ex) {
+                array8 = new PFS0.PFS0_Entry[0];
+                Debug.WriteLine("Partitions Error: " + ex.Message);
+            }
             for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
                 fileStream.Position = PFS0Offset + 16 + 24 * m;
                 fileStream.Read(array4, 0, 24);
@@ -941,7 +1107,7 @@ namespace XCI_Explorer {
             this.B_LoadROM.Name = "B_LoadROM";
             this.B_LoadROM.Size = new System.Drawing.Size(75, 23);
             this.B_LoadROM.TabIndex = 0;
-            this.B_LoadROM.Text = "Load XCI";
+            this.B_LoadROM.Text = "Load Game";
             this.B_LoadROM.UseVisualStyleBackColor = true;
             this.B_LoadROM.Click += new System.EventHandler(this.B_LoadROM_Click);
             // 
