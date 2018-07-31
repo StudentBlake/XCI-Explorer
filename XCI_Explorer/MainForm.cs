@@ -124,20 +124,27 @@ namespace XCI_Explorer {
             Directory.SetCurrentDirectory(startupPath);
 
             if (!File.Exists("keys.txt")) {
-                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.\n", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
-                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L2RTMUtjbm0y"), "keys.txt");
+                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L1RXdUtLaWhK"), "keys.txt");
                     }
                 }
 
                 if (!File.Exists("keys.txt")) {
-                    MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in this location.");
+                    MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in the root folder.");
                     Environment.Exit(0);
                 }
             }
 
-            if (!File.Exists("hactool.exe")) {
-                MessageBox.Show("hactool.exe is missing.");
+            if (!File.Exists("tools\\hactool.exe")) {
+                Directory.CreateDirectory("tools");
+                MessageBox.Show("hactool.exe is missing.\nPlease include hactool.exe in the 'tools' folder.");
+                Environment.Exit(0);
+            }
+
+            if (!File.Exists("tools\\nstoolmod.exe")) {
+                Directory.CreateDirectory("tools");
+                MessageBox.Show("nstoolmod.exe is missing.\nPlease include nstoolmod.exe in the 'tools' folder.");
                 Environment.Exit(0);
             }
 
@@ -276,10 +283,16 @@ namespace XCI_Explorer {
 
             Process process = new Process();
             try {
-                process.StartInfo = new ProcessStartInfo {
+                /*process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
                     FileName = "hactool.exe",
                     Arguments = "-t pfs0 " + "\"" + TB_File.Text + "\"" + " --outdir=tmp"
+                };*/
+                // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "tools\\nstoolmod.exe",
+                    Arguments = "--fsdir tmp \"" + TB_File.Text + "\""
                 };
                 process.Start();
                 process.WaitForExit();
@@ -309,7 +322,7 @@ namespace XCI_Explorer {
                 process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
+                    FileName = "tools\\hactool.exe",
                     Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
                 };
                 process.Start();
@@ -361,7 +374,7 @@ namespace XCI_Explorer {
                 process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
+                    FileName = "tools\\hactool.exe",
                     Arguments = "-k keys.txt tmp/" + ncaTarget,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -432,7 +445,7 @@ namespace XCI_Explorer {
                         Process process = new Process();
                         process.StartInfo = new ProcessStartInfo {
                             WindowStyle = ProcessWindowStyle.Hidden,
-                            FileName = "hactool.exe",
+                            FileName = "tools\\hactool.exe",
                             Arguments = "-k keys.txt --romfsdir=data meta"
                         };
                         process.Start();
@@ -857,7 +870,9 @@ namespace XCI_Explorer {
 
         private void B_ViewCert_Click(object sender, EventArgs e) {
             if (Util.checkFile(TB_File.Text)) {
-                new CertForm(this).Show();
+                CertForm cert = new CertForm(this);
+                cert.Text = "Cert Data - " + TB_File.Text;
+                cert.Show();
             }
             else {
                 MessageBox.Show("File not found");
