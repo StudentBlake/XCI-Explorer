@@ -5,27 +5,21 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows.Forms;
+using XCI.Explorer.DTO;
 using XCI.Explorer.Helpers;
+using XCI.Explorer.Loader;
 using XCI.Explorer.Properties;
 using XCI.Model;
-using XCI.XTSSharp;
 
 namespace XCI.Explorer.Forms
 {
     public class MainForm : Form
     {
-        public sealed override string Text
-        {
-            get => base.Text;
-            set => base.Text = value;
-        }
-
-        private KeyHandler _keyhandler;
+        private readonly Image[] _icons = new Image[16];
+        private readonly IContainer components;
+        private BackgroundWorker _backgroundWorker;
         private Button _btnClearCertificate;
         private Button _btnExportCertificate;
         private Button _btnExtract;
@@ -33,15 +27,14 @@ namespace XCI.Explorer.Forms
         private Button _btnLoadRom;
         private Button _btnTrimXci;
         private Button _btnViewCertificate;
-        private BackgroundWorker _backgroundWorker;
         private ComboBox _cbRegionName;
-        public List<char> Chars = new List<char>();
-        private readonly IContainer components;
+        private GameDto _gameDto;
         private long _gameNcaOffset;
         private GroupBox _groupBox1;
         private GroupBox _groupBox2;
 
-        private readonly Image[] _icons = new Image[16];
+        private KeyHandler _keyhandler;
+        public List<char> Chars = new List<char>();
         private Label label1;
         private Label label10;
         private Label label2;
@@ -53,32 +46,6 @@ namespace XCI.Explorer.Forms
         private Label label8;
         private Label label9;
 
-        private readonly string[] _language = {
-            "American English",
-            "British English",
-            "Japanese",
-            "French",
-            "German",
-            "Latin American Spanish",
-            "Spanish",
-            "Italian",
-            "Dutch",
-            "Canadian French",
-            "Portuguese",
-            "Russian",
-            "Korean",
-            "Taiwanese",
-            "Chinese",
-            "???"
-        };
-
-        private readonly string[] _sizeCategories = {
-            "B",
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-        };
 
         private Label LB_ActualHash;
         private Label LB_DataOffset;
@@ -102,7 +69,6 @@ namespace XCI.Explorer.Forms
         private TextBox TB_Capacity;
         private TextBox TB_Dev;
         private TextBox TB_ExactUsedSpace;
-        public TextBox TB_File;
         private TextBox TB_GameRev;
         private TextBox TB_MKeyRev;
         private TextBox TB_Name;
@@ -112,10 +78,27 @@ namespace XCI.Explorer.Forms
         private TextBox TB_SDKVer;
         private TextBox TB_TID;
         private TextBox TB_UsedSpace;
-        private TreeViewFileSystem TV_Parti;
-        private TreeView TV_Partitions;
+        public TextBox tbFile;
+        private TreeViewFileSystem tvFileSystem;
+        private TreeView tvPartitions;
         public double UsedSize;
-    public long GameNcaSize { get; private set; }
+
+        public MainForm()
+        {
+            InitializeComponent();
+            DisplayVersionNumber();
+            MacSupport();
+            ProcessFile();
+        }
+
+        public sealed override string Text
+        {
+            get => base.Text;
+            set => base.Text = value;
+        }
+
+        public long GameNcaSize { get; private set; }
+
 
         private void GenerateMainForm()
         {
@@ -126,7 +109,7 @@ namespace XCI.Explorer.Forms
             _btnImportCertificate = new Button();
             _btnExportCertificate = new Button();
             _btnExtract = new Button();
-            TB_File = new TextBox();
+            tbFile = new TextBox();
             TB_ProdCode = new TextBox();
             TB_Dev = new TextBox();
             TB_Name = new TextBox();
@@ -162,13 +145,13 @@ namespace XCI.Explorer.Forms
             _groupBox1 = new GroupBox();
             _cbRegionName = new ComboBox();
             PB_GameIcon = new PictureBox();
-            TV_Partitions = new TreeView();
+            tvPartitions = new TreeView();
             _backgroundWorker = new BackgroundWorker();
 
             TABC_Main.SuspendLayout();
             TABP_XCI.SuspendLayout();
             _groupBox2.SuspendLayout();
-            ((ISupportInitialize)PB_GameIcon).BeginInit();
+            ((ISupportInitialize) PB_GameIcon).BeginInit();
             _groupBox1.SuspendLayout();
             tabPage2.SuspendLayout();
             SuspendLayout();
@@ -183,16 +166,16 @@ namespace XCI.Explorer.Forms
             _btnLoadRom.UseVisualStyleBackColor = true;
             _btnLoadRom.Click += BtnLoadRomClick;
             // 
-            // TB_File
+            // tbFile
             // 
-            TB_File.AllowDrop = true;
-            TB_File.Location = new Point(85, 13);
-            TB_File.Name = "TB_File";
-            TB_File.ReadOnly = true;
-            TB_File.Size = new Size(258, 20);
-            TB_File.TabIndex = 1;
-            TB_File.DragDrop += TB_File_DragDrop;
-            TB_File.DragEnter += TB_File_DragEnter;
+            tbFile.AllowDrop = true;
+            tbFile.Location = new Point(85, 13);
+            tbFile.Name = "tbFile";
+            tbFile.ReadOnly = true;
+            tbFile.Size = new Size(258, 20);
+            tbFile.TabIndex = 1;
+            tbFile.DragDrop += TB_File_DragDrop;
+            tbFile.DragEnter += TB_File_DragEnter;
             // 
             // TABC_Main
             // 
@@ -527,7 +510,7 @@ namespace XCI.Explorer.Forms
             tabPage2.Controls.Add(LB_DataSize);
             tabPage2.Controls.Add(LB_DataOffset);
             tabPage2.Controls.Add(LB_SelectedData);
-            tabPage2.Controls.Add(TV_Partitions);
+            tabPage2.Controls.Add(tvPartitions);
             tabPage2.Location = new Point(4, 22);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
@@ -603,15 +586,15 @@ namespace XCI.Explorer.Forms
             LB_SelectedData.TabIndex = 1;
             LB_SelectedData.Text = "FileName";
             // 
-            // TV_Partitions
+            // tvPartitions
             // 
-            TV_Partitions.Dock = DockStyle.Top;
-            TV_Partitions.HideSelection = false;
-            TV_Partitions.Location = new Point(3, 3);
-            TV_Partitions.Name = "TV_Partitions";
-            TV_Partitions.Size = new Size(341, 361);
-            TV_Partitions.TabIndex = 0;
-            TV_Partitions.AfterSelect += TV_Partitions_AfterSelect;
+            tvPartitions.Dock = DockStyle.Top;
+            tvPartitions.HideSelection = false;
+            tvPartitions.Location = new Point(3, 3);
+            tvPartitions.Name = "tvPartitions";
+            tvPartitions.Size = new Size(341, 361);
+            tvPartitions.TabIndex = 0;
+            tvPartitions.AfterSelect += TV_Partitions_AfterSelect;
             // 
             // backgroundWorker
             // 
@@ -625,7 +608,7 @@ namespace XCI.Explorer.Forms
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(362, 529);
             Controls.Add(TABC_Main);
-            Controls.Add(TB_File);
+            Controls.Add(tbFile);
             Controls.Add(_btnLoadRom);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "MainForm";
@@ -636,7 +619,7 @@ namespace XCI.Explorer.Forms
             TABP_XCI.PerformLayout();
             _groupBox2.ResumeLayout(false);
             _groupBox2.PerformLayout();
-            ((ISupportInitialize)PB_GameIcon).EndInit();
+            ((ISupportInitialize) PB_GameIcon).EndInit();
             _groupBox1.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
@@ -644,22 +627,11 @@ namespace XCI.Explorer.Forms
             PerformLayout();
         }
 
-        public MainForm()
+        private void InitializeComponent()
         {
-            InitializeComponent();
-
-            DisplayVersionNumber();
-
-            //MAC - Set Current Directory to application directory so it can find the keys
-            var startupPath = Application.StartupPath;
-            Directory.SetCurrentDirectory(startupPath);
-
-            //MAC - Set the double clicked file name into the UI and process file
-            var args = Environment.GetCommandLineArgs();
-            if (args.Length <= 1) return;
-            TB_File.Text = args[1];
-            Application.DoEvents();
-            ProcessFile();
+            GenerateMainForm();
+            _keyhandler = new KeyHandler();
+            TreeViewBuilder.CreateTreeViewFileSystem(tvPartitions, tvFileSystem);
         }
 
         private void DisplayVersionNumber()
@@ -670,10 +642,24 @@ namespace XCI.Explorer.Forms
             Text = $"XCI Explorer v{assemblyVersion}";
         }
 
-        private void InitializeComponent()
+        private void MacSupport()
         {
-            GenerateMainForm();
-            _keyhandler = new KeyHandler();
+            SetCurrentDirectoryToApplicationDirectory();
+            GetDoubleClickedFileName();
+        }
+
+        private void GetDoubleClickedFileName()
+        {
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length <= 1) return;
+            tbFile.Text = args[1];
+            Application.DoEvents();
+        }
+
+        private static void SetCurrentDirectoryToApplicationDirectory()
+        {
+            var startupPath = Application.StartupPath;
+            Directory.SetCurrentDirectory(startupPath);
         }
 
         private void ProcessFile()
@@ -684,296 +670,89 @@ namespace XCI.Explorer.Forms
             }
             else
             {
-                TB_File.Text = null;
+                tbFile.Text = null;
                 MessageBox.Show("Unsupported file.");
             }
+        }
+
+        private void LoadXci()
+        {
+            _gameDto = new GameDto();
+            var loader = new XciLoader(_gameDto, _keyhandler);
+
+            CreateTreeViewFileSystem();
+
+            loader.GetRomSize(tbFile.Text);
+            loader.LoadPartitions(tbFile.Text, tvFileSystem, rootNode, tvPartitions);
+            loader.LoadNca(TB_TID, TB_SDKVer,TB_MKeyRev, tbFile.Text);
+            loader.LoadInfos(TB_Name,TB_Dev,PB_GameIcon,tbFile.Text,_cbRegionName, _icons, TB_GameRev, TB_ProdCode);
+
+            PopulateForm(_gameDto);
         }
 
         private void BtnLoadRomClick(object sender, EventArgs e)
         {
             var openFileDialog = new OpenFileDialog {Filter = Resources.OpenFileDialogFilters};
             if (openFileDialog.ShowDialog() != DialogResult.OK) return;
-            TB_File.Text = openFileDialog.FileName;
+            tbFile.Text = openFileDialog.FileName;
             ProcessFile();
         }
 
-        private void LoadXci()
+        private void PopulateForm(GameDto gameDto)
         {
-            double num = new FileInfo(TB_File.Text).Length;
-            TB_ROMExactSize.Text = "(" + num + " bytes)";
-            var num2 = 0;
-            while (num >= 1024.0 && num2 < _sizeCategories.Length - 1)
-            {
-                num2++;
-                num /= 1024.0;
-            }
-            TB_ROMSize.Text = $"{num:0.##} {_sizeCategories[num2]}";
-            var num3 = UsedSize = Xci.XciHeaders[0].CardSize2 * 512 + 512;
-            TB_ExactUsedSpace.Text = "(" + num3 + " bytes)";
-            num2 = 0;
-            while (num3 >= 1024.0 && num2 < _sizeCategories.Length - 1)
-            {
-                num2++;
-                num3 /= 1024.0;
-            }
-            TB_UsedSpace.Text = $"{num3:0.##} {_sizeCategories[num2]}";
-            TB_Capacity.Text = Util.GetCapacity(Xci.XciHeaders[0].CardSize1);
-            LoadPartitons();
-            LoadNcaData();
-            LoadGameInfos();
+            TB_ROMExactSize.Text = gameDto.ExactSize;
+            TB_ROMSize.Text = gameDto.Size;
+            TB_ExactUsedSpace.Text = gameDto.ExactUsedSpace;
+            TB_UsedSpace.Text = gameDto.UsedSpace;
+            TB_Capacity.Text = gameDto.Capacity;
         }
 
-        private void LoadGameInfos()
+        private static Process ReadWithHactool()
         {
-            _cbRegionName.Items.Clear();
-            _cbRegionName.Enabled = true;
-            TB_Name.Text = "";
-            TB_Dev.Text = "";
-            PB_GameIcon.BackgroundImage = null;
-            Array.Clear(_icons, 0, _icons.Length);
-            if (_keyhandler.GetMasterKey(Nca.NcaHeaders.First().MasterKeyRev))
+            var process = new Process
             {
-                using (var fileStream = File.OpenRead(TB_File.Text))
+                StartInfo = new ProcessStartInfo
                 {
-                    for (var si = 0; si < SecureSize.Length; si++)
-                    {
-                        if (SecureSize[si] > 0x4E20000) continue;
-
-                        if (File.Exists("meta")) File.Delete("meta");
-
-                        if (Directory.Exists("data")) Directory.Delete("data", true);
-
-                        using (var fileStream2 = File.OpenWrite("meta"))
-                        {
-                            fileStream.Position = SecureOffset[si];
-                            var buffer = new byte[8192];
-                            var num = SecureSize[si];
-                            int num2;
-                            while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
-                            {
-                                fileStream2.Write(buffer, 0, num2);
-                                num -= num2;
-                            }
-                            fileStream2.Close();
-                        }
-
-                        var process = new Process
-                        {
-                            StartInfo = new ProcessStartInfo
-                            {
-                                WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = "hactool.exe",
-                                Arguments = "-k keys.txt --romfsdir=data meta"
-                            }
-                        };
-                        process.Start();
-                        process.WaitForExit();
-
-                        if (File.Exists("data\\control.nacp"))
-                        {
-                            var source = File.ReadAllBytes("data\\control.nacp");
-                            Nacp.NacpDatas[0] = new Nacp.NacpData(source.Skip(0x3000).Take(0x1000).ToArray());
-                            for (var i = 0; i < Nacp.NacpStrings.Length; i++)
-                            {
-                                Nacp.NacpStrings[i] =
-                                    new Nacp.NacpString(source.Skip(i * 0x300).Take(0x300).ToArray());
-                                if (Nacp.NacpStrings[i].Check != 0)
-                                {
-                                    _cbRegionName.Items.Add(_language[i]);
-                                    var iconFilename = "data\\icon_" + _language[i].Replace(" ", "") + ".dat";
-                                    if (File.Exists(iconFilename))
-                                        using (var original = new Bitmap(iconFilename))
-                                        {
-                                            _icons[i] = new Bitmap(original);
-                                            PB_GameIcon.BackgroundImage = _icons[i];
-                                        }
-                                }
-                            }
-                            TB_GameRev.Text = Nacp.NacpDatas[0].GameVer;
-                            TB_ProdCode.Text = Nacp.NacpDatas[0].GameProd;
-                            if (TB_ProdCode.Text == "") TB_ProdCode.Text = "No Prod. ID";
-                            try
-                            {
-                                File.Delete("meta");
-                                Directory.Delete("data", true);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception(ex.Message);
-                            }
-
-                            _cbRegionName.SelectedIndex = 0;
-                            break;
-                        }
-                    }
-                    fileStream.Close();
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-k keys.txt --romfsdir=data meta"
                 }
-            }
-            else
+            };
+            return process;
+        }
+
+        private void ReadMetadataFromStream(FileStream fileStream, int si)
+        {
+            using (var fileStream2 = File.OpenWrite("meta"))
             {
-                TB_Dev.Text = _keyhandler.MasterKey + " not found";
-                TB_Name.Text = _keyhandler.MasterKey + " not found";
+                fileStream.Position = SecureOffset[si];
+                var buffer = new byte[8192];
+                var num = SecureSize[si];
+                int num2;
+                while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
+                {
+                    fileStream2.Write(buffer, 0, num2);
+                    num -= num2;
+                }
+                fileStream2.Close();
             }
         }
 
-        private void LoadNcaData()
+        private void CreateTreeViewFileSystem()
         {
-            Nca.NcaHeaders[0] = new Nca.NcaHeader(DecryptNcaHeader(_gameNcaOffset));
-            TB_TID.Text = "0" + Nca.NcaHeaders[0].TitleId.ToString("X");
-            TB_SDKVer.Text =
-                $"{Nca.NcaHeaders[0].SdkVersion4}.{Nca.NcaHeaders[0].SdkVersion3}.{Nca.NcaHeaders[0].SdkVersion2}.{Nca.NcaHeaders[0].SdkVersion1}";
-            TB_MKeyRev.Text = Util.GetMasterKey(Nca.NcaHeaders[0].MasterKeyRev);
-        }
-
-        //https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa
-        public static string ByteArrayToString(byte[] ba)
-        {
-            var hex = new StringBuilder(ba.Length * 2 + 2);
-            hex.Append("0x");
-            foreach (var b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
-
-        public static string Sha256Bytes(byte[] ba)
-        {
-            var mySha256 = SHA256.Create();
-            var hashValue = mySha256.ComputeHash(ba);
-            return ByteArrayToString(hashValue);
-        }
-
-        private void LoadPartitons()
-        {
-            TV_Partitions.Nodes.Clear();
-            TV_Parti = new TreeViewFileSystem(TV_Partitions);
+            tvPartitions.Nodes.Clear();
+            tvFileSystem = new TreeViewFileSystem(tvPartitions);
             rootNode = new BetterTreeNode("root")
             {
                 Offset = -1L,
                 Size = -1L
             };
-            TV_Partitions.Nodes.Add(rootNode);
-            var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
-            var array = new Hfs0.Hsf0Entry[Hfs0.Hfs0Headers[0].FileCount];
-            fileStream.Position = Xci.XciHeaders[0].Hfs0OffsetPartition + 16 + 64 * Hfs0.Hfs0Headers[0].FileCount;
-            var num = Xci.XciHeaders[0].Hfs0OffsetPartition + Xci.XciHeaders[0].Hfs0SizeParition;
-            var array2 = new byte[64];
-            var array3 = new byte[16];
-            var array4 = new byte[24];
-            for (var i = 0; i < Hfs0.Hfs0Headers[0].FileCount; i++)
-            {
-                fileStream.Position = Xci.XciHeaders[0].Hfs0OffsetPartition + 16 + 64 * i;
-                fileStream.Read(array2, 0, 64);
-                array[i] = new Hfs0.Hsf0Entry(array2);
-                fileStream.Position = Xci.XciHeaders[0].Hfs0OffsetPartition + 16 +
-                                      64 * Hfs0.Hfs0Headers[0].FileCount + array[i].NamePtr;
-                int num2;
-                while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0) Chars.Add((char) num2);
-                array[i].Name = new string(Chars.ToArray());
-                Chars.Clear();
-
-                var offset = num + array[i].Offset;
-                var hashBuffer = new byte[array[i].HashedRegionSize];
-                fileStream.Position = offset;
-                fileStream.Read(hashBuffer, 0, array[i].HashedRegionSize);
-                var actualHash = Sha256Bytes(hashBuffer);
-
-                TV_Parti.AddFile(array[i].Name + ".hfs0", rootNode, offset, array[i].Size, array[i].HashedRegionSize,
-                    ByteArrayToString(array[i].Hash), actualHash);
-                var betterTreeNode = TV_Parti.AddDir(array[i].Name, rootNode);
-                var array5 = new Hfs0.Hfs0Header[1];
-                fileStream.Position = array[i].Offset + num;
-                fileStream.Read(array3, 0, 16);
-                array5[0] = new Hfs0.Hfs0Header(array3);
-                switch (array[i].Name)
-                {
-                    case "secure":
-                        SecureSize = new long[array5[0].FileCount];
-                        SecureOffset = new long[array5[0].FileCount];
-                        break;
-                    case "normal":
-                        NormalSize = new long[array5[0].FileCount];
-                        NormalOffset = new long[array5[0].FileCount];
-                        break;
-                }
-                var array6 = new Hfs0.Hsf0Entry[array5[0].FileCount];
-                for (var j = 0; j < array5[0].FileCount; j++)
-                {
-                    fileStream.Position = array[i].Offset + num + 16 + 64 * j;
-                    fileStream.Read(array2, 0, 64);
-                    array6[j] = new Hfs0.Hsf0Entry(array2);
-                    fileStream.Position = array[i].Offset + num + 16 + 64 * array5[0].FileCount + array6[j].NamePtr;
-                    switch (array[i].Name)
-                    {
-                        case "secure":
-                            SecureSize[j] = array6[j].Size;
-                            SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize +
-                                              array5[0].FileCount * 64;
-                            break;
-                        case "normal":
-                            NormalSize[j] = array6[j].Size;
-                            NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize +
-                                              array5[0].FileCount * 64;
-                            break;
-                    }
-                    while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0) Chars.Add((char) num2);
-                    array6[j].Name = new string(Chars.ToArray());
-                    Chars.Clear();
-
-                    offset = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize +
-                             array5[0].FileCount * 64;
-                    hashBuffer = new byte[array6[j].HashedRegionSize];
-                    fileStream.Position = offset;
-                    fileStream.Read(hashBuffer, 0, array6[j].HashedRegionSize);
-                    actualHash = Sha256Bytes(hashBuffer);
-
-                    TV_Parti.AddFile(array6[j].Name, betterTreeNode, offset, array6[j].Size, array6[j].HashedRegionSize,
-                        ByteArrayToString(array6[j].Hash), actualHash);
-                    var array7 = TV_Partitions.Nodes.Find(betterTreeNode.Text, true);
-                    if (array7.Length != 0) TV_Parti.AddFile(array6[j].Name, (BetterTreeNode) array7[0], 0L, 0L);
-                }
-            }
-            var num3 = -9223372036854775808L;
-            for (var k = 0; k < SecureSize.Length; k++)
-                if (SecureSize[k] > num3)
-                {
-                    GameNcaSize = SecureSize[k];
-                    _gameNcaOffset = SecureOffset[k];
-                    num3 = SecureSize[k];
-                }
-            PFS0Offset = _gameNcaOffset + 32768;
-            fileStream.Position = PFS0Offset;
-            fileStream.Read(array3, 0, 16);
-            Pfs0.Pfs0Headers[0] = new Pfs0.Pfs0Header(array3);
-            var array8 = new Pfs0.Pfs0Entry[Pfs0.Pfs0Headers[0].FileCount];
-            for (var m = 0; m < Pfs0.Pfs0Headers[0].FileCount; m++)
-            {
-                fileStream.Position = PFS0Offset + 16 + 24 * m;
-                fileStream.Read(array4, 0, 24);
-                array8[m] = new Pfs0.Pfs0Entry(array4);
-                PFS0Size += array8[m].Size;
-            }
-            TV_Parti.AddFile("boot.psf0", rootNode, PFS0Offset,
-                16 + 24 * Pfs0.Pfs0Headers[0].FileCount + 64 + PFS0Size);
-            var betterTreeNode2 = TV_Parti.AddDir("boot", rootNode);
-            for (var n = 0; n < Pfs0.Pfs0Headers[0].FileCount; n++)
-            {
-                fileStream.Position = PFS0Offset + 16 + 24 * Pfs0.Pfs0Headers[0].FileCount + array8[n].NamePtr;
-                int num4;
-                while ((num4 = fileStream.ReadByte()) != 0 && num4 != 0) Chars.Add((char) num4);
-                array8[n].Name = new string(Chars.ToArray());
-                Chars.Clear();
-                TV_Parti.AddFile(array8[n].Name, betterTreeNode2,
-                    PFS0Offset + array8[n].Offset + 16 + Pfs0.Pfs0Headers[0].StringTableSize +
-                    Pfs0.Pfs0Headers[0].FileCount * 24, array8[n].Size);
-                var array9 = TV_Partitions.Nodes.Find(betterTreeNode2.Text, true);
-                if (array9.Length != 0) TV_Parti.AddFile(array8[n].Name, (BetterTreeNode) array9[0], 0L, 0L);
-            }
-            fileStream.Close();
+            tvPartitions.Nodes.Add(rootNode);
         }
 
         private void TV_Partitions_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            var betterTreeNode = (BetterTreeNode) TV_Partitions.SelectedNode;
+            var betterTreeNode = (BetterTreeNode) tvPartitions.SelectedNode;
             if (betterTreeNode.Offset != -1)
             {
                 selectedOffset = betterTreeNode.Offset;
@@ -987,10 +766,10 @@ namespace XCI.Explorer.Forms
                 if (_backgroundWorker.IsBusy != true) _btnExtract.Enabled = true;
                 var array = new string[5]
                 {
-                    "B",
-                    "KB",
-                    "MB",
-                    "GB",
+                    "Bytes",
+                    "Kilobytes",
+                    "Megabytes",
+                    "Gigabytes",
                     "TB"
                 };
                 double num = selectedSize;
@@ -1034,7 +813,8 @@ namespace XCI.Explorer.Forms
 
         public bool CheckXci()
         {
-            var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
+            if (string.IsNullOrEmpty(tbFile.Text)) return false;
+            var fileStream = new FileStream(tbFile.Text, FileMode.Open, FileAccess.Read);
             var array = new byte[61440];
             var array2 = new byte[16];
             fileStream.Read(array, 0, 61440);
@@ -1049,7 +829,7 @@ namespace XCI.Explorer.Forms
 
         private void BtnExportCertificateClick(object sender, EventArgs e)
         {
-            if (Util.CheckFile(TB_File.Text))
+            if (Util.CheckFile(tbFile.Text))
             {
                 var saveFileDialog = new SaveFileDialog
                 {
@@ -1057,7 +837,7 @@ namespace XCI.Explorer.Forms
                     FileName = Path.GetFileName("gamecard_cert.dat")
                 };
                 if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
-                var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
+                var fileStream = new FileStream(tbFile.Text, FileMode.Open, FileAccess.Read);
                 var array = new byte[512];
                 fileStream.Position = 28672L;
                 fileStream.Read(array, 0, 512);
@@ -1073,14 +853,14 @@ namespace XCI.Explorer.Forms
 
         private void BtnImportCertificateClick(object sender, EventArgs e)
         {
-            if (Util.CheckFile(TB_File.Text))
+            if (Util.CheckFile(tbFile.Text))
             {
                 var openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "gamecard_cert (*.dat)|*.dat|All files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK &&
                     new FileInfo(openFileDialog.FileName).Length == 512)
                 {
-                    using (Stream stream = File.Open(TB_File.Text, FileMode.Open))
+                    using (Stream stream = File.Open(tbFile.Text, FileMode.Open))
                     {
                         stream.Position = 28672L;
                         stream.Write(File.ReadAllBytes(openFileDialog.FileName), 0, 512);
@@ -1096,17 +876,17 @@ namespace XCI.Explorer.Forms
 
         private void BtnViewCertificateClick(object sender, EventArgs e)
         {
-            if (Util.CheckFile(TB_File.Text)) new CertificateView().Show();
+            if (Util.CheckFile(tbFile.Text)) new CertificateView().Show();
             else MessageBox.Show("File not found");
         }
 
         private void BtnClearCertificateClick(object sender, EventArgs e)
         {
-            if (Util.CheckFile(TB_File.Text))
+            if (Util.CheckFile(tbFile.Text))
             {
                 if (MessageBox.Show("The cert will be deleted permanently.\nContinue?", "XCI Explorer",
                         MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    using (Stream stream = File.Open(TB_File.Text, FileMode.Open))
+                    using (Stream stream = File.Open(tbFile.Text, FileMode.Open))
                     {
                         var array = new byte[512];
                         for (var i = 0; i < array.Length; i++) array[i] = byte.MaxValue;
@@ -1125,7 +905,7 @@ namespace XCI.Explorer.Forms
         {
             var saveFileDialog = new SaveFileDialog {FileName = LB_SelectedData.Text};
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
-            if (_backgroundWorker.IsBusy == true) return;
+            if (_backgroundWorker.IsBusy) return;
             _btnExtract.Enabled = false;
             _btnLoadRom.Enabled = false;
             _btnTrimXci.Enabled = false;
@@ -1138,29 +918,9 @@ namespace XCI.Explorer.Forms
             MessageBox.Show("Extracting NCA\nPlease wait...");
         }
 
-        public byte[] DecryptNcaHeader(long offset)
-        {
-            var array = new byte[3072];
-            if (!File.Exists(TB_File.Text)) return array;
-            var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read) {Position = offset};
-            fileStream.Read(array, 0, 3072);
-            File.WriteAllBytes(TB_File.Text + ".tmp", array);
-            var xts = XtsAes128.Create(_keyhandler.NcaHeaderEncryptionKey1Prod, _keyhandler.NcaHeaderEncryptionKey2Prod);
-            using (var binaryReader = new BinaryReader(File.OpenRead(TB_File.Text + ".tmp")))
-            {
-                using (var xtsStream = new XtsStream(binaryReader.BaseStream, xts, 512))
-                {
-                    xtsStream.Read(array, 0, 3072);
-                }
-            }
-            File.Delete(TB_File.Text + ".tmp");
-            fileStream.Close();
-            return array;
-        }
-
         private void CB_RegionName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var num = Array.FindIndex(_language,
+            var num = Array.FindIndex(Util.Language,
                 element => element.StartsWith(_cbRegionName.Text, StringComparison.Ordinal));
             PB_GameIcon.BackgroundImage = _icons[num];
             TB_Name.Text = Nacp.NacpStrings[num].GameName;
@@ -1169,24 +929,24 @@ namespace XCI.Explorer.Forms
 
         private void BtnTrimXciClick(object sender, EventArgs e)
         {
-            if (Util.CheckFile(TB_File.Text))
+            if (Util.CheckFile(tbFile.Text))
             {
                 if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
                 if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
                 {
-                    var fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Write);
+                    var fileStream = new FileStream(tbFile.Text, FileMode.Open, FileAccess.Write);
                     fileStream.SetLength((long) UsedSize);
                     fileStream.Close();
                     MessageBox.Show("Done.");
                     var array = new string[5]
                     {
-                        "B",
-                        "KB",
-                        "MB",
-                        "GB",
+                        "Bytes",
+                        "Kilobytes",
+                        "Megabytes",
+                        "Gigabytes",
                         "TB"
                     };
-                    double num = new FileInfo(TB_File.Text).Length;
+                    double num = new FileInfo(tbFile.Text).Length;
                     TB_ROMExactSize.Text = "(" + num + " bytes)";
                     var num2 = 0;
                     while (num >= 1024.0 && num2 < array.Length - 1)
@@ -1218,13 +978,13 @@ namespace XCI.Explorer.Forms
 
         private void LB_ExpectedHash_DoubleClick(object sender, EventArgs e)
         {
-            var betterTreeNode = (BetterTreeNode) TV_Partitions.SelectedNode;
+            var betterTreeNode = (BetterTreeNode) tvPartitions.SelectedNode;
             if (betterTreeNode.Offset != -1) Clipboard.SetText(betterTreeNode.ExpectedHash);
         }
 
         private void LB_ActualHash_DoubleClick(object sender, EventArgs e)
         {
-            var betterTreeNode = (BetterTreeNode) TV_Partitions.SelectedNode;
+            var betterTreeNode = (BetterTreeNode) tvPartitions.SelectedNode;
             if (betterTreeNode.Offset != -1) Clipboard.SetText(betterTreeNode.ActualHash);
         }
 
@@ -1233,7 +993,7 @@ namespace XCI.Explorer.Forms
             if (_backgroundWorker.IsBusy != true)
             {
                 var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-                TB_File.Text = files[0];
+                tbFile.Text = files[0];
                 ProcessFile();
             }
         }
@@ -1248,7 +1008,7 @@ namespace XCI.Explorer.Forms
         {
             var fileName = (string) e.Argument;
 
-            using (var fileStream = File.OpenRead(TB_File.Text))
+            using (var fileStream = File.OpenRead(tbFile.Text))
             {
                 using (var fileStream2 = File.OpenWrite(fileName))
                 {

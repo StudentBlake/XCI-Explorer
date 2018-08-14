@@ -12,7 +12,7 @@ namespace XCI.Model
             public long CardSize2;
             public byte[] Data;
             public long Hfs0OffsetPartition;
-            public long Hfs0SizeParition;
+            public long Hfs0SizePartition;
             public string Magic;
 
             public XciHeader(byte[] data)
@@ -22,7 +22,7 @@ namespace XCI.Model
                 CardSize1 = Data[269];
                 CardSize2 = BitConverter.ToInt64(data, 280);
                 Hfs0OffsetPartition = BitConverter.ToInt64(data, 304);
-                Hfs0SizeParition = BitConverter.ToInt64(data, 312);
+                Hfs0SizePartition = BitConverter.ToInt64(data, 312);
             }
         }
     }

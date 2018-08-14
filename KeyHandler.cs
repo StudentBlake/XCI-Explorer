@@ -7,21 +7,25 @@ using System.Text;
 using System.Windows.Forms;
 using XCI.Explorer.Helpers;
 using XCI.Explorer.Properties;
-using XCI.Model;
 
 namespace XCI.Explorer
 {
     public class KeyHandler
     {
+        public string MasterKey = "master_key_";
+
+        public KeyHandler()
+        {
+            CheckRequirements();
+        }
+
         public byte[] NcaHeaderEncryptionKey1Prod => Util.HexStringToByteArray(HeaderKey.Remove(32, 32));
 
         public byte[] NcaHeaderEncryptionKey2Prod => Util.HexStringToByteArray(HeaderKey.Remove(0, 32));
 
-        public string MasterKey = "master_key_";
-
         private static string HeaderKey => Keys["header_key"].Replace(" ", "");
 
-        private static Dictionary<string,string> Keys
+        private static Dictionary<string, string> Keys
         {
             get
             {
@@ -33,11 +37,6 @@ namespace XCI.Explorer
             }
         }
 
-        public KeyHandler()
-        {
-            CheckRequirements();
-        }
-
         private static void CheckRequirements()
         {
             CheckForKeys();
@@ -47,7 +46,8 @@ namespace XCI.Explorer
         private static void CheckForKeys()
         {
             if (!File.Exists("keys.txt"))
-                if (MessageBox.Show(Resources.KeysTxtDownloadPrompt,"XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show(Resources.KeysTxtDownloadPrompt, "XCI Explorer", MessageBoxButtons.YesNo) ==
+                    DialogResult.Yes)
                     using (var client = new WebClient())
                     {
                         var keys = Encoding.UTF8.GetString(Convert.FromBase64String(Resources.keyUrlAsBase64String));
@@ -81,17 +81,11 @@ namespace XCI.Explorer
         {
             var adjustedRevision = (masterKeyRev - 1).ToString();
             if (masterKeyRev == 0 || masterKeyRev == 1)
-            {
                 MasterKey += "00";
-            }
             else if (masterKeyRev < 17)
-            {
                 MasterKey = MasterKey + "0" + adjustedRevision;
-            }
             else if (masterKeyRev >= 17)
-            {
                 MasterKey += adjustedRevision;
-            }
             try
             {
                 MasterKey = Keys[MasterKey].Replace(" ", "");

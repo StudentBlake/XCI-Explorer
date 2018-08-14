@@ -35,14 +35,14 @@ namespace XCI.UnitTests
         [TestCase(6, "MasterKey unknown")]
         public void GetMasterKey_MasterKeyIsKnown(byte givenId, string expectedMasterKey)
         {
-            var result = Util.GetMasterKey(givenId);
+            var result = Util.GetMasterKeyVersion(givenId);
             result.Should().Be(expectedMasterKey);
         }
 
         [Test]
         public void GetMasterKey_MasterKeyIsUnknown()
         {
-            var result = Util.GetMasterKey(6);
+            var result = Util.GetMasterKeyVersion(6);
             result.Should().Be("MasterKey unknown");
         }
 
@@ -54,6 +54,13 @@ namespace XCI.UnitTests
             var expectedResult = BitConverter.ToString(result).Replace("-", "");
 
             expectedResult.Should().Be(stringToConvert);
+        }
+
+        [Test]
+        public void ByteArrayToString_StringNotEmpty()
+        {
+            var result = Util.ByteArrayToString(new byte[8]);
+            result.Should().BeOfType<string>().And.NotBeNullOrEmpty();
         }
     }
 }

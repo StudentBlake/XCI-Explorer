@@ -19,7 +19,7 @@ namespace XCI.Explorer.Forms
         {
             this.components = components;
             InitializeComponent();
-            var fileStream = new FileStream(mainForm.TB_File.Text, FileMode.Open, FileAccess.Read);
+            var fileStream = new FileStream(mainForm.tbFile.Text, FileMode.Open, FileAccess.Read);
             var array = new byte[512];
             fileStream.Position = 28672L;
             fileStream.Read(array, 0, 512);
