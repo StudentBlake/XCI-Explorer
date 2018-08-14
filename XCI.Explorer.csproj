@@ -50,6 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\GameDto.cs" />
+    <Compile Include="Helpers\SizeCategories.cs" />
+    <Compile Include="Helpers\TreeViewBuilder.cs" />
     <Compile Include="KeyHandler.cs" />
     <Compile Include="Loader\ILoader.cs" />
     <Compile Include="Loader\XciLoader.cs" />

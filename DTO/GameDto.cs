@@ -8,7 +8,7 @@ namespace XCI.Explorer.DTO
         public string Size { get; set; }
         public string UsedSpace { get; set; }
         public string Capacity { get; set; }
-        public double UsedSize { get; set; }
+        public decimal UsedSize { get; set; }
         public long[] SecureSize { get; set; }
         public long[] SecureOffset { get; set; }
         public long[] NormalSize { get; set; }
