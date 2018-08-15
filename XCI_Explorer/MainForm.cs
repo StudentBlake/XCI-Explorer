@@ -142,12 +142,6 @@ namespace XCI_Explorer {
                 Environment.Exit(0);
             }
 
-            if (!File.Exists("tools\\nstoolmod.exe")) {
-                Directory.CreateDirectory("tools");
-                MessageBox.Show("nstoolmod.exe is missing.\nPlease include nstoolmod.exe in the 'tools' folder.");
-                Environment.Exit(0);
-            }
-
             getKey();
 
             //MAC - Set the double clicked file name into the UI and process file
@@ -258,6 +252,7 @@ namespace XCI_Explorer {
             LoadGameInfos();
         }
 
+        // Giba's better implementation (more native)
         public void LoadNSPMetadata() {
             CB_RegionName.Items.Clear();
             CB_RegionName.Enabled = true;
@@ -267,6 +262,8 @@ namespace XCI_Explorer {
             Array.Clear(Icons, 0, Icons.Length);
             TV_Partitions.Nodes.Clear();
             FileInfo fi = new FileInfo(TB_File.Text);
+            string contentType = "";
+
             //Get File Size
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
             double num_fs = (double)fi.Length;
@@ -283,90 +280,173 @@ namespace XCI_Explorer {
 
             Process process = new Process();
             try {
-                /*process.StartInfo = new ProcessStartInfo {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
-                    Arguments = "-t pfs0 " + "\"" + TB_File.Text + "\"" + " --outdir=tmp"
-                };*/
-                // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
-                process.StartInfo = new ProcessStartInfo {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "tools\\nstoolmod.exe",
-                    Arguments = "--fsdir tmp \"" + TB_File.Text + "\""
-                };
-                process.Start();
-                process.WaitForExit();
-                process.Close();
+                FileStream fileStream = File.OpenRead(TB_File.Text);
+                string ncaTarget = "";
 
-                List<string> listXML = new List<string>();
-                if (!Directory.Exists("tmp")) {
+                List<char> chars = new List<char>();
+                byte[] array = new byte[16];
+                byte[] array2 = new byte[24];
+                fileStream.Read(array, 0, 16);
+                PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array);
+                if (!PFS0.PFS0_Headers[0].Magic.Contains("PFS0")) {
+                    return;
                 }
-                try {
-                    foreach (string f in Directory.GetFiles("tmp", "*.xml")) {
-                        listXML.Add(f);
+                PFS0.PFS0_Entry[] array3;
+                array3 = new PFS0.PFS0_Entry[Math.Max(PFS0.PFS0_Headers[0].FileCount, 20)]; //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+
+                for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
+                    fileStream.Position = 16 + 24 * m;
+                    fileStream.Read(array2, 0, 24);
+                    array3[m] = new PFS0.PFS0_Entry(array2);
+
+                    if (m == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    {
                         break;
                     }
                 }
-                catch { }
-
-                XDocument xml = XDocument.Load(listXML.First());
-                TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
-                string ncaTarget = "";
-                foreach (XElement xe in xml.Descendants("Content")) {
-                    if (xe.Element("Type").Value != "Control") {
-                        continue;
+                for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
+                    fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + array3[n].Name_ptr;
+                    int num4;
+                    while ((num4 = fileStream.ReadByte()) != 0 && num4 != 0) {
+                        chars.Add((char)num4);
                     }
-                    ncaTarget = xe.Element("Id").Value + ".nca";
-                    break;
-                }
-                process = new Process();
-                process.StartInfo = new ProcessStartInfo {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "tools\\hactool.exe",
-                    Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
-                };
-                process.Start();
-                process.WaitForExit();
-                process.Close();
-                byte[] flux = new byte[200];
+                    array3[n].Name = new string(chars.ToArray());
+                    chars.Clear();
 
-                byte[] source = File.ReadAllBytes("tmp\\control.nacp");
-                NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
+                    if (array3[n].Name.EndsWith(".xml")) {
+                        byte[] array4 = new byte[array3[n].Size];
+                        fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
+                        fileStream.Read(array4, 0, (int)array3[n].Size);
 
-                //data.Region_Icon = new Dictionary<string, string>();
-                //data.Languagues = new List<string>();
+                        XDocument xml = XDocument.Parse(Encoding.UTF8.GetString(array4));
+                        TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
+                        contentType = xml.Element("ContentMeta").Element("Type").Value;
 
-                for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
-                    NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
-                    if (NACP.NACP_Strings[i].Check != 0) {
-                        CB_RegionName.Items.Add(Language[i]);
-                        //string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
-                        string icon_filename = "tmp\\icon_" + Language[i].Replace(" ", "") + ".dat";
-                        if (File.Exists(icon_filename)) {
-                            using (Bitmap original = new Bitmap(icon_filename)) {
-                                Icons[i] = new Bitmap(original);
-                                PB_GameIcon.BackgroundImage = Icons[i];
+                        /*string titleIDBaseGame = TB_TID.Text;
+                        if (contentType != "Application") {
+                            string titleIdBase = TB_TID.Text.Substring(0, 13);
+                            if (contentType == "Patch") //UPDATE
+                            {
+                                titleIDBaseGame = titleIdBase + "000";
+                            }
+                            else //DLC
+                            {
+                                long tmp = long.Parse(titleIdBase, System.Globalization.NumberStyles.HexNumber) - 1;
+                                titleIDBaseGame = string.Format("0{0:X8}", tmp) + "000";
+                            }
+                        }*/
+                        //data.TitleIDBaseGame = titleIDBaseGame;
+
+                        if (contentType != "AddOnContent") {
+                            foreach (XElement xe in xml.Descendants("Content")) {
+                                if (xe.Element("Type").Value != "Control") {
+                                    continue;
+                                }
+
+                                ncaTarget = xe.Element("Id").Value + ".nca";
+                                break;
+                            }
+                        }
+                        else //This is a DLC
+                        {
+                            foreach (XElement xe in xml.Descendants("Content")) {
+                                if (xe.Element("Type").Value != "Meta") {
+                                    continue;
+                                }
+
+                                ncaTarget = xe.Element("Id").Value + ".cnmt.nca";
+                                break;
                             }
                         }
                     }
-                }
-                TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
-                TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
-                if (TB_ProdCode.Text == "") {
-                    TB_ProdCode.Text = "No Prod. ID";
+
+                    if (n == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    {
+                        break;
+                    }
                 }
 
-                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
-                    if (NACP.NACP_Strings[z].GameName.Replace("\0", "") != "") {
-                        TB_Name.Text = NACP.NACP_Strings[z].GameName.Replace("\0", "");
+                for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
+                    if (array3[n].Name.Equals(ncaTarget)) {
+                        if (!Directory.Exists("tmp")) {
+                            Directory.CreateDirectory("tmp");
+                        }
+
+                        byte[] array5 = new byte[64 * 1024];
+                        fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
+
+                        using (Stream output = File.Create("tmp\\" + ncaTarget)) {
+                            long Size = array3[n].Size;
+                            int result = 0;
+                            while ((result = fileStream.Read(array5, 0, (int)Math.Min(array5.Length, Size))) > 0) {
+                                output.Write(array5, 0, result);
+                                Size -= result;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    if (n == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    {
                         break;
                     }
                 }
-                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
-                    if (NACP.NACP_Strings[z].GameAuthor.Replace("\0", "") != "") {
-                        TB_Dev.Text = NACP.NACP_Strings[z].GameAuthor.Replace("\0", "");
-                        break;
+
+                if (contentType != "AddOnContent") {
+                    process = new Process();
+                    process.StartInfo = new ProcessStartInfo {
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        FileName = "tools\\hactool.exe",
+                        Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
+                    };
+
+                    process.Start();
+                    process.WaitForExit();
+                    process.Close();
+                    byte[] flux = new byte[200];
+
+                    try {
+                        byte[] source = File.ReadAllBytes("tmp\\control.nacp");
+                        NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
+
+                        for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
+                            NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
+
+                            if (NACP.NACP_Strings[i].Check != 0) {
+                                CB_RegionName.Items.Add(Language[i]);
+                                string icon_filename = "tmp\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                if (File.Exists(icon_filename)) {
+                                    using (Bitmap original = new Bitmap(icon_filename)) {
+                                        Icons[i] = new Bitmap(original);
+                                        PB_GameIcon.BackgroundImage = Icons[i];
+                                    }
+                                }
+                            }
+                        }
+                        TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
+                        TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
+                        if (TB_ProdCode.Text == "") {
+                            TB_ProdCode.Text = "No Prod. ID";
+                        }
+
+                        for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                            if (NACP.NACP_Strings[z].GameName.Replace("\0", "") != "") {
+                                TB_Name.Text = NACP.NACP_Strings[z].GameName.Replace("\0", "");
+                                break;
+                            }
+                        }
+                        for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                            if (NACP.NACP_Strings[z].GameAuthor.Replace("\0", "") != "") {
+                                TB_Dev.Text = NACP.NACP_Strings[z].GameAuthor.Replace("\0", "");
+                                break;
+                            }
+                        }
                     }
+                    catch { }
+
+                    /*if (contentType == "Patch") {
+                    }*/
                 }
 
                 //Lets get SDK Version, Distribution Type and Masterkey revision
@@ -391,9 +471,6 @@ namespace XCI_Explorer {
                     if (strArray[0] == "SDK Version") {
                         TB_SDKVer.Text = strArray[1].Trim();
                     }
-                    /*else if (strArray[0] == "Distribution type") {
-                        data.DistributionType = strArray[1].Trim();
-                    }*/
                     else if (strArray[0] == "Master Key Revision") {
                         TB_MKeyRev.Text = "MasterKey" + strArray[1].Trim();
                         break;
@@ -406,8 +483,12 @@ namespace XCI_Explorer {
             finally {
                 Directory.Delete("tmp", true);
             }
+
             TB_Capacity.Text = "eShop";
-            CB_RegionName.SelectedIndex = 0;
+
+            if(TB_Name.Text.Trim() != "") {
+                CB_RegionName.SelectedIndex = 0;
+            } 
         }
 
         private void LoadGameInfos() {
