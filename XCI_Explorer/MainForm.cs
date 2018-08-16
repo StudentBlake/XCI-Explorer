@@ -41,6 +41,7 @@ namespace XCI_Explorer {
         private long[] NormalSize;
         private long[] SecureOffset;
         private long[] NormalOffset;
+        private string[] SecureName = { };
         private long gameNcaOffset;
         private long gameNcaSize;
         private long PFS0Offset;
@@ -500,69 +501,140 @@ namespace XCI_Explorer {
             Array.Clear(Icons, 0, Icons.Length);
             if (getMKey()) {
                 using (FileStream fileStream = File.OpenRead(TB_File.Text)) {
+                    List<string> ncaTarget = new List<string>();
+                    Version GameRevision = new Version();
+
                     for (int si = 0; si < SecureSize.Length; si++) {
                         if (SecureSize[si] > 0x4E20000) continue;
 
-                        if (File.Exists("meta")) {
-                            File.Delete("meta");
-                        }
-
-                        if (Directory.Exists("data")) {
-                            Directory.Delete("data", true);
-                        }
-
-                        using (FileStream fileStream2 = File.OpenWrite("meta")) {
-                            fileStream.Position = SecureOffset[si];
-                            byte[] buffer = new byte[8192];
-                            long num = SecureSize[si];
-                            int num2;
-                            while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0) {
-                                fileStream2.Write(buffer, 0, num2);
-                                num -= num2;
-                            }
-                            fileStream2.Close();
-                        }
-
-                        Process process = new Process();
-                        process.StartInfo = new ProcessStartInfo {
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            FileName = "tools\\hactool.exe",
-                            Arguments = "-k keys.txt --romfsdir=data meta"
-                        };
-                        process.Start();
-                        process.WaitForExit();
-
-                        if (File.Exists("data\\control.nacp")) {
-                            byte[] source = File.ReadAllBytes("data\\control.nacp");
-                            NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
-                            for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
-                                NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
-                                if (NACP.NACP_Strings[i].Check != 0) {
-                                    CB_RegionName.Items.Add(Language[i]);
-                                    string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
-                                    if (File.Exists(icon_filename)) {
-                                        using (Bitmap original = new Bitmap(icon_filename)) {
-                                            Icons[i] = new Bitmap(original);
-                                            PB_GameIcon.BackgroundImage = Icons[i];
-                                        }
-                                    }
-                                }
-                            }
-                            TB_GameRev.Text = NACP.NACP_Datas[0].GameVer;
-                            TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd;
-                            if (TB_ProdCode.Text == "") {
-                                TB_ProdCode.Text = "No Prod. ID";
-                            }
-                            try {
+                        if (SecureName[si].EndsWith(".cnmt.nca")) {
+                            if (File.Exists("meta")) {
                                 File.Delete("meta");
+                            }
+
+                            if (Directory.Exists("data")) {
                                 Directory.Delete("data", true);
                             }
-                            catch { }
 
-                            CB_RegionName.SelectedIndex = 0;
-                            break;
+                            using (FileStream fileStream2 = File.OpenWrite("meta")) {
+                                fileStream.Position = SecureOffset[si];
+                                byte[] buffer = new byte[8192];
+                                long num = SecureSize[si];
+                                int num4;
+                                while ((num4 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0) {
+                                    fileStream2.Write(buffer, 0, num4);
+                                    num -= num4;
+                                }
+                                fileStream2.Close();
+                            }
+
+                            Process process = new Process();
+                            process.StartInfo = new ProcessStartInfo {
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                FileName = "tools\\hactool.exe",
+                                Arguments = "-k keys.txt --section0dir=data meta"
+                            };
+                            process.Start();
+                            process.WaitForExit();
+
+                            string[] cnmt = Directory.GetFiles("data", "*.cnmt");
+                            if (cnmt.Length != 0) {
+                                using (FileStream fileStream3 = File.OpenRead(cnmt[0])) {
+                                    byte[] buffer = new byte[32];
+                                    byte[] buffer2 = new byte[56];
+                                    CNMT.CNMT_Header[] array7 = new CNMT.CNMT_Header[1];
+
+                                    fileStream3.Read(buffer, 0, 32);
+                                    array7[0] = new CNMT.CNMT_Header(buffer);
+
+                                    fileStream3.Position = array7[0].Offset + 32;
+                                    CNMT.CNMT_Entry[] array9 = new CNMT.CNMT_Entry[array7[0].ContentCount];
+                                    for (int k = 0; k < array7[0].ContentCount; k++) {
+                                        fileStream3.Read(buffer2, 0, 56);
+                                        array9[k] = new CNMT.CNMT_Entry(buffer2);
+                                        if (array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.CONTROL) {
+                                            ncaTarget.Add(BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "") + ".nca");
+                                            break;
+                                        }
+                                    }
+
+                                    fileStream3.Close();
+                                }
+                            }
                         }
                     }
+
+                    for (int si = 0; si < SecureSize.Length; si++) {
+                        if (SecureSize[si] > 0x4E20000) continue;
+
+                        if (ncaTarget.Contains(SecureName[si])) {
+                            if (File.Exists("meta")) {
+                                File.Delete("meta");
+                            }
+
+                            if (Directory.Exists("data")) {
+                                Directory.Delete("data", true);
+                            }
+
+                            using (FileStream fileStream2 = File.OpenWrite("meta")) {
+                                fileStream.Position = SecureOffset[si];
+                                byte[] buffer = new byte[8192];
+                                long num = SecureSize[si];
+                                int num2;
+                                while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0) {
+                                    fileStream2.Write(buffer, 0, num2);
+                                    num -= num2;
+                                }
+                                fileStream2.Close();
+                            }
+
+                            Process process = new Process();
+                            process.StartInfo = new ProcessStartInfo {
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                FileName = "tools\\hactool.exe",
+                                Arguments = "-k keys.txt --romfsdir=data meta"
+                            };
+                            process.Start();
+                            process.WaitForExit();
+
+                            if (File.Exists("data\\control.nacp")) {
+                                byte[] source = File.ReadAllBytes("data\\control.nacp");
+                                NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
+
+                                string GameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
+                                if (Version.Parse(GameVer).CompareTo(GameRevision) > 0) {
+                                    GameRevision = Version.Parse(GameVer);
+
+                                    for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
+                                        NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
+                                        if (NACP.NACP_Strings[i].Check != 0) {
+                                            CB_RegionName.Items.Add(Language[i]);
+                                            string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                            if (File.Exists(icon_filename)) {
+                                                using (Bitmap original = new Bitmap(icon_filename)) {
+                                                    Icons[i] = new Bitmap(original);
+                                                    PB_GameIcon.BackgroundImage = Icons[i];
+                                                }
+                                            }
+                                        }
+                                    }
+                                    TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd;
+                                    if (TB_ProdCode.Text == "") {
+                                        TB_ProdCode.Text = "No Prod. ID";
+                                    }
+                                    try {
+                                        File.Delete("meta");
+                                        Directory.Delete("data", true);
+                                    }
+                                    catch { }
+                                }
+                            }
+                        }
+                    }
+
+                    TB_GameRev.Text = GameRevision.ToString();
+                    CB_RegionName.SelectedIndex = 0;
+
                     fileStream.Close();
                 }
             }
@@ -640,6 +712,7 @@ namespace XCI_Explorer {
                 if (array[i].Name == "secure") {
                     SecureSize = new long[array5[0].FileCount];
                     SecureOffset = new long[array5[0].FileCount];
+                    SecureName = new string[array5[0].FileCount];
                 }
                 if (array[i].Name == "normal") {
                     NormalSize = new long[array5[0].FileCount];
@@ -651,19 +724,20 @@ namespace XCI_Explorer {
                     fileStream.Read(array2, 0, 64);
                     array6[j] = new HFS0.HSF0_Entry(array2);
                     fileStream.Position = array[i].Offset + num + 16 + 64 * array5[0].FileCount + array6[j].Name_ptr;
-                    if (array[i].Name == "secure") {
-                        SecureSize[j] = array6[j].Size;
-                        SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                    }
-                    if (array[i].Name == "normal") {
-                        NormalSize[j] = array6[j].Size;
-                        NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                    }
                     while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0) {
                         chars.Add((char)num2);
                     }
                     array6[j].Name = new string(chars.ToArray());
                     chars.Clear();
+                    if (array[i].Name == "secure") {
+                        SecureSize[j] = array6[j].Size;
+                        SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+                        SecureName[j] = array6[j].Name;
+                    }
+                    if (array[i].Name == "normal") {
+                        NormalSize[j] = array6[j].Size;
+                        NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+                    }
 
                     offset = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
                     hashBuffer = new byte[array6[j].HashedRegionSize];
@@ -751,6 +825,7 @@ namespace XCI_Explorer {
                 if (array[i].Name == "secure") {
                     SecureSize = new long[array5[0].FileCount];
                     SecureOffset = new long[array5[0].FileCount];
+                    SecureName = new string[array5[0].FileCount];
                 }
                 if (array[i].Name == "normal") {
                     NormalSize = new long[array5[0].FileCount];
@@ -762,19 +837,20 @@ namespace XCI_Explorer {
                     fileStream.Read(array2, 0, 64);
                     array6[j] = new HFS0.HSF0_Entry(array2);
                     fileStream.Position = array[i].Offset + num + 16 + 64 * array5[0].FileCount + array6[j].Name_ptr;
-                    if (array[i].Name == "secure") {
-                        SecureSize[j] = array6[j].Size;
-                        SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                    }
-                    if (array[i].Name == "normal") {
-                        NormalSize[j] = array6[j].Size;
-                        NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                    }
                     while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0) {
                         chars.Add((char)num2);
                     }
                     array6[j].Name = new string(chars.ToArray());
                     chars.Clear();
+                    if (array[i].Name == "secure") {
+                        SecureSize[j] = array6[j].Size;
+                        SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+                        SecureName[j] = array6[j].Name;
+                    }
+                    if (array[i].Name == "normal") {
+                        NormalSize[j] = array6[j].Size;
+                        NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+                    }
                     TV_Parti.AddFile(array6[j].Name, betterTreeNode, array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64, array6[j].Size);
                     TreeNode[] array7 = TV_Partitions.Nodes.Find(betterTreeNode.Text, true);
                     if (array7.Length != 0) {

@@ -54,6 +54,7 @@
     <Compile Include="XCI_Explorer\CertForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="XCI_Explorer\CNMT.cs" />
     <Compile Include="XCI_Explorer\HFS0.cs" />
     <Compile Include="XCI_Explorer\MainForm.cs">
       <SubType>Form</SubType>
