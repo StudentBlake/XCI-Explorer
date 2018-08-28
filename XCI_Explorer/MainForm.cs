@@ -13,6 +13,7 @@ using XCI_Explorer.Helpers;
 using XTSSharp;
 using System.Net;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace XCI_Explorer {
     public class MainForm : Form {
@@ -502,7 +503,7 @@ namespace XCI_Explorer {
             if (getMKey()) {
                 using (FileStream fileStream = File.OpenRead(TB_File.Text)) {
                     List<string> ncaTarget = new List<string>();
-                    Version GameRevision = new Version();
+                    string GameRevision = "";
 
                     for (int si = 0; si < SecureSize.Length; si++) {
                         if (SecureSize[si] > 0x4E20000) continue;
@@ -602,8 +603,17 @@ namespace XCI_Explorer {
                                 NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
 
                                 string GameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
-                                if (Version.Parse(GameVer).CompareTo(GameRevision) > 0) {
-                                    GameRevision = Version.Parse(GameVer);
+                                Version version1, version2;
+                                if (!Version.TryParse(Regex.Replace(GameRevision, @"[^\d.].*$", ""), out version1))
+                                {
+                                    version1 = new Version();
+                                }
+                                if (!Version.TryParse(Regex.Replace(GameVer, @"[^\d.].*$", ""), out version2))
+                                {
+                                    version2 = new Version();
+                                }
+                                if (version2.CompareTo(version1) > 0) {
+                                    GameRevision = GameVer;
 
                                     for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
                                         NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
@@ -632,7 +642,7 @@ namespace XCI_Explorer {
                         }
                     }
 
-                    TB_GameRev.Text = GameRevision.ToString();
+                    TB_GameRev.Text = GameRevision;
                     CB_RegionName.SelectedIndex = 0;
 
                     fileStream.Close();
@@ -863,7 +873,7 @@ namespace XCI_Explorer {
                 if (SecureSize[k] > num3) {
                     gameNcaSize = SecureSize[k];
                     gameNcaOffset = SecureOffset[k];
-                    num3 = SecureOffset[k];
+                    num3 = SecureSize[k];
                 }
             }
             PFS0Offset = gameNcaOffset + 32768;
