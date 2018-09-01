@@ -257,7 +257,6 @@ namespace XCI_Explorer {
             }
             TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
             TB_Capacity.Text = Util.GetCapacity(XCI.XCI_Headers[0].CardSize1);
-            // Hash support reverted until fix with games like Sonic Mania
             LoadPartitions();
             LoadNCAData();
             LoadGameInfos();
@@ -460,8 +459,8 @@ namespace XCI_Explorer {
                     }*/
                 }
 
-                //Lets get SDK Version, Distribution Type and Masterkey revision
-                //This is far from the best aproach, but its what we have for now
+                // Lets get SDK Version, Distribution Type and Masterkey revision
+                // This is far from the best aproach, but it's what we have for now
                 process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
@@ -497,9 +496,9 @@ namespace XCI_Explorer {
 
             TB_Capacity.Text = "eShop";
 
-            if(TB_Name.Text.Trim() != "") {
+            if (TB_Name.Text.Trim() != "") {
                 CB_RegionName.SelectedIndex = 0;
-            } 
+            }
         }
 
         private void LoadGameInfos() {
@@ -1136,7 +1135,19 @@ namespace XCI_Explorer {
 
         private void CB_RegionName_SelectedIndexChanged(object sender, EventArgs e) {
             int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
-            PB_GameIcon.BackgroundImage = Icons[num];
+            // Icons for 1-2 Switch in some languages are "missing"
+            // This just shows the first real icon instead of a blank
+            if (Icons[num] != null) {
+                PB_GameIcon.BackgroundImage = Icons[num];
+            }
+            else {
+                for (int i = 0; i < CB_RegionName.Items.Count; i++) {
+                    if (Icons[i] != null) {
+                        PB_GameIcon.BackgroundImage = Icons[i];
+                        break;
+                    }
+                }
+            }
             TB_Name.Text = NACP.NACP_Strings[num].GameName;
             TB_Dev.Text = NACP.NACP_Strings[num].GameAuthor;
         }
