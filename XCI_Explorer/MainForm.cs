@@ -623,7 +623,7 @@ namespace XCI_Explorer {
 
                                     for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
                                         NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
-                                        if (NACP.NACP_Strings[i].Check != 0) {
+                                        if (NACP.NACP_Strings[i].Check != 0 && !CB_RegionName.Items.Contains(Language[i])) {
                                             CB_RegionName.Items.Add(Language[i]);
                                             string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
                                             if (File.Exists(icon_filename)) {
