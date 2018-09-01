@@ -192,6 +192,15 @@ namespace XCI_Explorer {
 
         private void ProcessFile() {
             if (Path.GetExtension(TB_File.Text).ToLower() == ".nsp") {
+                // Code needs refactoring 
+                LB_SelectedData.Text = "";
+                LB_DataOffset.Text = "";
+                LB_DataSize.Text = "";
+                LB_HashedRegionSize.Text = "";
+                LB_ExpectedHash.Text = "";
+                LB_ActualHash.Text = "";
+                B_Extract.Enabled = false;
+
                 B_TrimXCI.Enabled = false;
                 B_ExportCert.Enabled = false;
                 B_ImportCert.Enabled = false;
@@ -249,7 +258,7 @@ namespace XCI_Explorer {
             TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
             TB_Capacity.Text = Util.GetCapacity(XCI.XCI_Headers[0].CardSize1);
             // Hash support reverted until fix with games like Sonic Mania
-            LoadPartitionsOld();
+            LoadPartitions();
             LoadNCAData();
             LoadGameInfos();
         }
@@ -675,7 +684,7 @@ namespace XCI_Explorer {
             return ByteArrayToString(hashValue);
         }
 
-        private void LoadPartitions() {
+        private void LoadPartitionsOld() {
             string actualHash;
             byte[] hashBuffer;
             long offset;
@@ -799,7 +808,11 @@ namespace XCI_Explorer {
             fileStream.Close();
         }
 
-        private void LoadPartitionsOld() {
+        private void LoadPartitions() {
+            string actualHash;
+            byte[] hashBuffer;
+            long offset;
+
             TV_Partitions.Nodes.Clear();
             TV_Parti = new TreeViewFileSystem(TV_Partitions);
             rootNode = new BetterTreeNode("root");
@@ -825,7 +838,13 @@ namespace XCI_Explorer {
                 }
                 array[i].Name = new string(chars.ToArray());
                 chars.Clear();
-                TV_Parti.AddFile(array[i].Name + ".hfs0", rootNode, num + array[i].Offset, array[i].Size);
+                offset = num + array[i].Offset;
+                hashBuffer = new byte[array[i].HashedRegionSize];
+                fileStream.Position = offset;
+                fileStream.Read(hashBuffer, 0, array[i].HashedRegionSize);
+                actualHash = SHA256Bytes(hashBuffer);
+
+                TV_Parti.AddFile(array[i].Name + ".hfs0", rootNode, offset, array[i].Size, array[i].HashedRegionSize, ByteArrayToString(array[i].Hash), actualHash);
                 BetterTreeNode betterTreeNode = TV_Parti.AddDir(array[i].Name, rootNode);
                 HFS0.HFS0_Header[] array5 = new HFS0.HFS0_Header[1];
                 fileStream.Position = array[i].Offset + num;
@@ -865,7 +884,13 @@ namespace XCI_Explorer {
                         NormalSize[j] = array6[j].Size;
                         NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
                     }
-                    TV_Parti.AddFile(array6[j].Name, betterTreeNode, array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64, array6[j].Size);
+                    offset = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
+                    hashBuffer = new byte[array6[j].HashedRegionSize];
+                    fileStream.Position = offset;
+                    fileStream.Read(hashBuffer, 0, array6[j].HashedRegionSize);
+                    actualHash = SHA256Bytes(hashBuffer);
+
+                    TV_Parti.AddFile(array6[j].Name, betterTreeNode, offset, array6[j].Size, array6[j].HashedRegionSize, ByteArrayToString(array6[j].Hash), actualHash);
                     TreeNode[] array7 = TV_Partitions.Nodes.Find(betterTreeNode.Text, true);
                     if (array7.Length != 0) {
                         TV_Parti.AddFile(array6[j].Name, (BetterTreeNode)array7[0], 0L, 0L);
