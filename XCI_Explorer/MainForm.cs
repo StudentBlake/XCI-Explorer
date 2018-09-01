@@ -315,7 +315,7 @@ namespace XCI_Explorer {
                     array3[n].Name = new string(chars.ToArray());
                     chars.Clear();
 
-                    if (array3[n].Name.EndsWith(".xml")) {
+                    if (array3[n].Name.EndsWith(".cnmt.xml")) {
                         byte[] array4 = new byte[array3[n].Size];
                         fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
                         fileStream.Read(array4, 0, (int)array3[n].Size);
@@ -604,12 +604,10 @@ namespace XCI_Explorer {
 
                                 string GameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
                                 Version version1, version2;
-                                if (!Version.TryParse(Regex.Replace(GameRevision, @"[^\d.].*$", ""), out version1))
-                                {
+                                if (!Version.TryParse(Regex.Replace(GameRevision, @"[^\d.].*$", ""), out version1)) {
                                     version1 = new Version();
                                 }
-                                if (!Version.TryParse(Regex.Replace(GameVer, @"[^\d.].*$", ""), out version2))
-                                {
+                                if (!Version.TryParse(Regex.Replace(GameVer, @"[^\d.].*$", ""), out version2)) {
                                     version2 = new Version();
                                 }
                                 if (version2.CompareTo(version1) > 0) {
@@ -808,6 +806,7 @@ namespace XCI_Explorer {
             rootNode.Offset = -1L;
             rootNode.Size = -1L;
             TV_Partitions.Nodes.Add(rootNode);
+            bool LogoPartition = false;
             FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
             HFS0.HSF0_Entry[] array = new HFS0.HSF0_Entry[HFS0.HFS0_Headers[0].FileCount];
             fileStream.Position = XCI.XCI_Headers[0].HFS0OffsetPartition + 16 + 64 * HFS0.HFS0_Headers[0].FileCount;
@@ -840,6 +839,11 @@ namespace XCI_Explorer {
                 if (array[i].Name == "normal") {
                     NormalSize = new long[array5[0].FileCount];
                     NormalOffset = new long[array5[0].FileCount];
+                }
+                if (array[i].Name == "logo") {
+                    if (array5[0].FileCount > 0) {
+                        LogoPartition = true;
+                    }
                 }
                 HFS0.HSF0_Entry[] array6 = new HFS0.HSF0_Entry[array5[0].FileCount];
                 for (int j = 0; j < array5[0].FileCount; j++) {
@@ -880,34 +884,36 @@ namespace XCI_Explorer {
             fileStream.Position = PFS0Offset;
             fileStream.Read(array3, 0, 16);
             PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
-            PFS0.PFS0_Entry[] array8;
-            try {
-                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
-            }
-            catch (Exception ex) {
-                array8 = new PFS0.PFS0_Entry[0];
-                Debug.WriteLine("Partitions Error: " + ex.Message);
-            }
-            for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
-                fileStream.Position = PFS0Offset + 16 + 24 * m;
-                fileStream.Read(array4, 0, 24);
-                array8[m] = new PFS0.PFS0_Entry(array4);
-                PFS0Size += array8[m].Size;
-            }
-            TV_Parti.AddFile("boot.psf0", rootNode, PFS0Offset, 16 + 24 * PFS0.PFS0_Headers[0].FileCount + 64 + PFS0Size);
-            BetterTreeNode betterTreeNode2 = TV_Parti.AddDir("boot", rootNode);
-            for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
-                fileStream.Position = PFS0Offset + 16 + 24 * PFS0.PFS0_Headers[0].FileCount + array8[n].Name_ptr;
-                int num4;
-                while ((num4 = fileStream.ReadByte()) != 0 && num4 != 0) {
-                    chars.Add((char)num4);
+            if (PFS0.PFS0_Headers[0].FileCount == 2 || !LogoPartition) {
+                PFS0.PFS0_Entry[] array8;
+                try {
+                    array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
                 }
-                array8[n].Name = new string(chars.ToArray());
-                chars.Clear();
-                TV_Parti.AddFile(array8[n].Name, betterTreeNode2, PFS0Offset + array8[n].Offset + 16 + PFS0.PFS0_Headers[0].StringTableSize + PFS0.PFS0_Headers[0].FileCount * 24, array8[n].Size);
-                TreeNode[] array9 = TV_Partitions.Nodes.Find(betterTreeNode2.Text, true);
-                if (array9.Length != 0) {
-                    TV_Parti.AddFile(array8[n].Name, (BetterTreeNode)array9[0], 0L, 0L);
+                catch (Exception ex) {
+                    array8 = new PFS0.PFS0_Entry[0];
+                    Debug.WriteLine("Partitions Error: " + ex.Message);
+                }
+                for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
+                    fileStream.Position = PFS0Offset + 16 + 24 * m;
+                    fileStream.Read(array4, 0, 24);
+                    array8[m] = new PFS0.PFS0_Entry(array4);
+                    PFS0Size += array8[m].Size;
+                }
+                TV_Parti.AddFile("boot.psf0", rootNode, PFS0Offset, 16 + 24 * PFS0.PFS0_Headers[0].FileCount + 64 + PFS0Size);
+                BetterTreeNode betterTreeNode2 = TV_Parti.AddDir("boot", rootNode);
+                for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
+                    fileStream.Position = PFS0Offset + 16 + 24 * PFS0.PFS0_Headers[0].FileCount + array8[n].Name_ptr;
+                    int num4;
+                    while ((num4 = fileStream.ReadByte()) != 0 && num4 != 0) {
+                        chars.Add((char)num4);
+                    }
+                    array8[n].Name = new string(chars.ToArray());
+                    chars.Clear();
+                    TV_Parti.AddFile(array8[n].Name, betterTreeNode2, PFS0Offset + array8[n].Offset + 16 + PFS0.PFS0_Headers[0].StringTableSize + PFS0.PFS0_Headers[0].FileCount * 24, array8[n].Size);
+                    TreeNode[] array9 = TV_Partitions.Nodes.Find(betterTreeNode2.Text, true);
+                    if (array9.Length != 0) {
+                        TV_Parti.AddFile(array8[n].Name, (BetterTreeNode)array9[0], 0L, 0L);
+                    }
                 }
             }
             fileStream.Close();
