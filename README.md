@@ -28,7 +28,8 @@ Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 * Run **XCI-Explorer.exe**
 
 ## Special Thanks
-klks - CARD2, Hash Validation, bug fixes
+klks - CARD2, hash validation and bug fixes
+garoxas - Game revision, QoL changes and bug fixes
 
 ## Disclaimer
 This is not my original work. I just made minor changes with the help of others.
