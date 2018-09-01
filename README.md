@@ -16,9 +16,9 @@ View contents of XCI files and more!
 * [Hactool](https://github.com/SciresM/hactool/releases)
 * [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
 
-Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
+Main | Partitions
 :-------------------------:|:-------------------------:
-![main](https://imgur.com/tO5oPq4.jpg) | ![partitions](https://imgur.com/U7FpWr2.jpg)
+![main](https://cdn.discordapp.com/attachments/373320120707055617/485316278941253642/cap1.PNG) | ![partitions](https://cdn.discordapp.com/attachments/373320120707055617/485316273992105984/cap2.PNG)
 
 ## Build Instructions
 * Open **XCI Explorer.sln**
@@ -29,6 +29,7 @@ Main Tab Metadata/Cert/Trimming | Partitions Tab NCA Extract/Hash Check
 
 ## Special Thanks
 klks - CARD2, hash validation and bug fixes
+
 garoxas - Game revision, QoL changes and bug fixes
 
 ## Disclaimer
