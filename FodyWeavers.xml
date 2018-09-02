@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Weavers>
-    <Costura/>
+    <Costura>
+    <ExcludeAssemblies>
+        System
+        System.Drawing
+        System.Windows.Forms
+    </ExcludeAssemblies>
+    </Costura>
 </Weavers>
