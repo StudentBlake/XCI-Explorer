@@ -274,6 +274,9 @@ namespace XCI_Explorer {
             FileInfo fi = new FileInfo(TB_File.Text);
             string contentType = "";
 
+            // Maximum number of files in NSP to read in
+            const int MAXFILES = 100;
+
             //Get File Size
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
             double num_fs = (double)fi.Length;
@@ -302,14 +305,14 @@ namespace XCI_Explorer {
                     return;
                 }
                 PFS0.PFS0_Entry[] array3;
-                array3 = new PFS0.PFS0_Entry[Math.Max(PFS0.PFS0_Headers[0].FileCount, 20)]; //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                array3 = new PFS0.PFS0_Entry[Math.Max(PFS0.PFS0_Headers[0].FileCount, MAXFILES)]; //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
 
                 for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
                     fileStream.Position = 16 + 24 * m;
                     fileStream.Read(array2, 0, 24);
                     array3[m] = new PFS0.PFS0_Entry(array2);
 
-                    if (m == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (m == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
@@ -322,6 +325,8 @@ namespace XCI_Explorer {
                     }
                     array3[n].Name = new string(chars.ToArray());
                     chars.Clear();
+
+                    //Console.WriteLine("FC: " + PFS0.PFS0_Headers[0].FileCount.ToString() + " Name: " + array3[n].Name);
 
                     if (array3[n].Name.EndsWith(".cnmt.xml")) {
                         byte[] array4 = new byte[array3[n].Size];
@@ -370,7 +375,7 @@ namespace XCI_Explorer {
                         }
                     }
 
-                    if (n == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (n == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
@@ -397,7 +402,7 @@ namespace XCI_Explorer {
                         break;
                     }
 
-                    if (n == 19) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (n == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
@@ -490,7 +495,7 @@ namespace XCI_Explorer {
                 process.Close();
             }
             catch { }
-            finally {
+            if (Directory.Exists("tmp")) {
                 Directory.Delete("tmp", true);
             }
 
