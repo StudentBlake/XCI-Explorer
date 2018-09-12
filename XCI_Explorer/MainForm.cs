@@ -295,6 +295,7 @@ namespace XCI_Explorer {
             try {
                 FileStream fileStream = File.OpenRead(TB_File.Text);
                 string ncaTarget = "";
+                string xmlVersion = "";
 
                 List<char> chars = new List<char>();
                 byte[] array = new byte[16];
@@ -336,6 +337,8 @@ namespace XCI_Explorer {
                         XDocument xml = XDocument.Parse(Encoding.UTF8.GetString(array4));
                         TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
                         contentType = xml.Element("ContentMeta").Element("Type").Value;
+                        if (contentType == "Patch")
+                            xmlVersion = " (v" + xml.Element("ContentMeta").Element("Version").Value + ")";
 
                         /*string titleIDBaseGame = TB_TID.Text;
                         if (contentType != "Application") {
@@ -439,7 +442,7 @@ namespace XCI_Explorer {
                                 }
                             }
                         }
-                        TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
+                        TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "") + xmlVersion; ;
                         TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
                         if (TB_ProdCode.Text == "") {
                             TB_ProdCode.Text = "No Prod. ID";
@@ -462,6 +465,10 @@ namespace XCI_Explorer {
 
                     /*if (contentType == "Patch") {
                     }*/
+                }
+                else {
+                    TB_GameRev.Text = "";
+                    TB_ProdCode.Text = "No Prod. ID";
                 }
 
                 // Lets get SDK Version, Distribution Type and Masterkey revision
