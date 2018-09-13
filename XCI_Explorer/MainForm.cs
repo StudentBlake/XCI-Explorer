@@ -313,7 +313,7 @@ namespace XCI_Explorer {
                     fileStream.Read(array2, 0, 24);
                     array3[m] = new PFS0.PFS0_Entry(array2);
 
-                    if (m == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (m == MAXFILES - 1) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
@@ -338,7 +338,7 @@ namespace XCI_Explorer {
                         TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
                         contentType = xml.Element("ContentMeta").Element("Type").Value;
                         if (contentType == "Patch")
-                            xmlVersion = " (v" + xml.Element("ContentMeta").Element("Version").Value + ")";
+                            xmlVersion = "v" + xml.Element("ContentMeta").Element("Version").Value;
 
                         /*string titleIDBaseGame = TB_TID.Text;
                         if (contentType != "Application") {
@@ -378,7 +378,7 @@ namespace XCI_Explorer {
                         }
                     }
 
-                    if (n == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (n == MAXFILES - 1) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
@@ -405,11 +405,13 @@ namespace XCI_Explorer {
                         break;
                     }
 
-                    if (n == MAXFILES) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
+                    if (n == MAXFILES - 1) //Dump of TitleID 01009AA000FAA000 reports more than 10000000 files here, so it breaks the program. Standard is to have only 20 files
                     {
                         break;
                     }
                 }
+
+                fileStream.Close();
 
                 if (contentType != "AddOnContent") {
                     process = new Process();
@@ -442,8 +444,13 @@ namespace XCI_Explorer {
                                 }
                             }
                         }
-                        TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "") + xmlVersion; ;
-                        TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
+                        if(xmlVersion.Trim() == "") {
+                            TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
+                        }
+                        else {
+                            TB_GameRev.Text = xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")";
+                        }
+                        TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", "");
                         if (TB_ProdCode.Text == "") {
                             TB_ProdCode.Text = "No Prod. ID";
                         }
