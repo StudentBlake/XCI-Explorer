@@ -501,7 +501,14 @@ namespace XCI_Explorer {
                         TB_SDKVer.Text = strArray[1].Trim();
                     }
                     else if (strArray[0] == "Master Key Revision") {
-                        TB_MKeyRev.Text = "MasterKey" + strArray[1].Trim();
+                        string MasterKey = strArray[1].Trim();
+                        if (MasterKey.Contains("Unknown")) {
+                            int keyblob;
+                            if (int.TryParse(new string(MasterKey.TakeWhile(Char.IsDigit).ToArray()), out keyblob)) {
+                                MasterKey = Util.GetMkey((byte)(keyblob + 1)).Replace("MasterKey", "");
+                            }
+                        }
+                        TB_MKeyRev.Text = "MasterKey" + MasterKey;
                         break;
                     }
                 }
