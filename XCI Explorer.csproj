@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Costura.Fody.3.1.6\build\Costura.Fody.props" Condition="Exists('packages\Costura.Fody.3.1.6\build\Costura.Fody.props')" />
   <PropertyGroup>
     <ProjectGuid>{89DBE891-22C7-40FF-A3D3-36F26224E09D}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -32,8 +33,8 @@
     <Reference Include="Be.Windows.Forms.HexBox, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Be.Windows.Forms.HexBox.1.6.1\lib\net40\Be.Windows.Forms.HexBox.dll</HintPath>
     </Reference>
-    <Reference Include="Costura, Version=3.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
-      <HintPath>packages\Costura.Fody.3.1.0\lib\net46\Costura.dll</HintPath>
+    <Reference Include="Costura, Version=3.1.6.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>packages\Costura.Fody.3.1.6\lib\net46\Costura.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms">
       <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll</HintPath>
@@ -93,9 +94,8 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.3.1.0\build\Costura.Fody.targets'))" />
-    <Error Condition="!Exists('packages\Fody.3.2.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.3.2.2\build\Fody.targets'))" />
+    <Error Condition="!Exists('packages\Costura.Fody.3.1.6\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.3.1.6\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('packages\Fody.3.3.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.3.3.2\build\Fody.targets'))" />
   </Target>
-  <Import Project="packages\Costura.Fody.3.1.0\build\Costura.Fody.targets" Condition="Exists('packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" />
-  <Import Project="packages\Fody.3.2.2\build\Fody.targets" Condition="Exists('packages\Fody.3.2.2\build\Fody.targets')" />
+  <Import Project="packages\Fody.3.3.2\build\Fody.targets" Condition="Exists('packages\Fody.3.3.2\build\Fody.targets')" />
 </Project>
