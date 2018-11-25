@@ -1812,6 +1812,7 @@ namespace XCI_Explorer {
             this.Controls.Add(this.TB_File);
             this.Controls.Add(this.B_LoadROM);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "XCI Explorer";
