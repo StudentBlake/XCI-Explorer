@@ -266,6 +266,12 @@ namespace XCI_Explorer {
         public void LoadNSPMetadata() {
             CB_RegionName.Items.Clear();
             CB_RegionName.Enabled = true;
+            TB_TID.Text = "";
+            TB_Capacity.Text = "";
+            TB_MKeyRev.Text = "";
+            TB_SDKVer.Text = "";
+            TB_GameRev.Text = "";
+            TB_ProdCode.Text = "";
             TB_Name.Text = "";
             TB_Dev.Text = "";
             PB_GameIcon.BackgroundImage = null;
@@ -275,7 +281,7 @@ namespace XCI_Explorer {
             string contentType = "";
 
             // Maximum number of files in NSP to read in
-            const int MAXFILES = 100;
+            const int MAXFILES = 250;
 
             //Get File Size
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
@@ -327,7 +333,7 @@ namespace XCI_Explorer {
                     array3[n].Name = new string(chars.ToArray());
                     chars.Clear();
 
-                    //Console.WriteLine("FC: " + PFS0.PFS0_Headers[0].FileCount.ToString() + " Name: " + array3[n].Name);
+                    // Console.WriteLine("FC: " + PFS0.PFS0_Headers[0].FileCount.ToString() + " Name: " + array3[n].Name);
 
                     if (array3[n].Name.EndsWith(".cnmt.xml")) {
                         byte[] array4 = new byte[array3[n].Size];
