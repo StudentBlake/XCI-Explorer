@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace XCI_Explorer {
     public class CertForm : Form {
-        private IContainer components;
+        private IContainer components = null;
         private HexBox hbxHexView;
 
         public CertForm(MainForm mainForm) {

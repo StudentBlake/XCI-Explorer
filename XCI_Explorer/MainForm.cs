@@ -56,7 +56,7 @@ namespace XCI_Explorer {
         public double UsedSize;
         private TreeViewFileSystem TV_Parti;
         private BetterTreeNode rootNode;
-        private IContainer components;
+        private IContainer components = null;
         private Button B_LoadROM;
         private TabControl TABC_Main;
         private TabPage TABP_XCI;
@@ -108,11 +108,7 @@ namespace XCI_Explorer {
 
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
-
-            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            string[] versionArray = assemblyVersion.Split('.');
-            assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Explorer v" + assemblyVersion;
+            this.Text = "XCI Explorer v" + getAssemblyVersion(NUMBERSINVERSION);
 
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
@@ -188,6 +184,15 @@ namespace XCI_Explorer {
             catch {
                 return false;
             }
+        }
+
+        private string getAssemblyVersion(int num) {
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string[] versionArray = assemblyVersion.Split('.');
+
+            assemblyVersion = string.Join(".", versionArray.Take(num));
+
+            return assemblyVersion;
         }
 
         private void ProcessFile() {
@@ -450,7 +455,7 @@ namespace XCI_Explorer {
                                 }
                             }
                         }
-                        if(xmlVersion.Trim() == "") {
+                        if (xmlVersion.Trim() == "") {
                             TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
                         }
                         else {
