@@ -11,14 +11,14 @@ View contents of XCI files and more!
 * Extract NCA
 * Modify cert
 
-## Requirements
+Main | Partitions
+:-------------------------:|:-------------------------:
+![main](https://i.imgur.com/JvmhkPW.jpg) | ![partitions](https://i.imgur.com/x5Kqp9I.jpg)
+
+## Build Requirements
 * Visual Studio 2017
 * [Hactool](https://github.com/SciresM/hactool/releases)
 * [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
-
-Main | Partitions
-:-------------------------:|:-------------------------:
-![main](https://cdn.discordapp.com/attachments/373320120707055617/485316278941253642/cap1.PNG) | ![partitions](https://cdn.discordapp.com/attachments/373320120707055617/485316273992105984/cap2.PNG)
 
 ## Build Instructions
 * Open **XCI Explorer.sln**
@@ -28,9 +28,8 @@ Main | Partitions
 * Run **XCI-Explorer.exe**
 
 ## Special Thanks
-klks - CARD2, hash validation and bug fixes
-
-garoxas - Game revision, QoL changes and bug fixes
+* klks - CARD2, hash validation and bug fixes
+* garoxas - Game revision, QoL changes and bug fixes
 
 ## Disclaimer
 This is not my original work. I just made minor changes with the help of others.
