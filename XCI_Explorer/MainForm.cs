@@ -459,7 +459,7 @@ namespace XCI_Explorer {
                             TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
                         }
                         else {
-                            TB_GameRev.Text = xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")";
+                            TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "") + " (" + xmlVersion + ")";
                         }
                         TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", "");
                         if (TB_ProdCode.Text == "") {
