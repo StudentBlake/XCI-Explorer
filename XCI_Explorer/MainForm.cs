@@ -336,9 +336,7 @@ namespace XCI_Explorer {
 
                 for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
                     if (array3[n].Name.Equals(ncaTarget)) {
-                        if (!Directory.Exists("tmp")) {
-                            Directory.CreateDirectory("tmp");
-                        }
+                        Directory.CreateDirectory("tmp");
 
                         byte[] array5 = new byte[64 * 1024];
                         fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
