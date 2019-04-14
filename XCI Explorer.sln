@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCI Explorer", "XCI Explorer.csproj", "{89DBE891-22C7-40FF-A3D3-36F26224E09D}"
 EndProject
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1F73AFFB-5BC0-4923-9D40-CD671B603EC9}
+		SolutionGuid = {F9C853DD-FEA7-470E-B594-C72A1C93ECBB}
 	EndGlobalSection
 EndGlobal

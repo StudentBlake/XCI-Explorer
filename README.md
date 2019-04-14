@@ -5,7 +5,7 @@
 View contents of XCI files and more!
 
 ## Features
-* View metadata
+* View metadata for XCI and NSP files
 * Explore partitions
 * Check NCA hashes
 * Extract NCA
@@ -13,18 +13,18 @@ View contents of XCI files and more!
 
 Main | Partitions
 :-------------------------:|:-------------------------:
-![main](https://i.imgur.com/JvmhkPW.jpg) | ![partitions](https://i.imgur.com/x5Kqp9I.jpg)
+![main](https://cdn.discordapp.com/attachments/377518386826969088/567048477058662401/1.JPG) | ![partitions](https://cdn.discordapp.com/attachments/377518386826969088/567048488823554051/2.JPG)
 
 ## Build Requirements
-* Visual Studio 2017
-* [Hactool](https://github.com/SciresM/hactool/releases)
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
+* [Visual Studio Community 2019](https://visualstudio.microsoft.com/downloads/)
+* [hactool](https://github.com/SciresM/hactool/releases)
+* [Lockpick](https://gbatemp.net/threads/switch-7-0-key-derivation-lockpick_rcm-payload.532916/)
 
 ## Build Instructions
 * Open **XCI Explorer.sln**
 * Change *Debug* to *Release* in the dropdown menu
 * Go to *Build*, then *Build Solution*
-* Extract **hactool.zip** to `XCI-Explorer/bin/Release/` folder
+* Extract **hactool.zip** to `XCI-Explorer/bin/Release/tools/` folder
 * Run **XCI-Explorer.exe**
 
 ## Special Thanks
