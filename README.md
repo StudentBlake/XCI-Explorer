@@ -13,7 +13,7 @@ View contents of XCI files and more!
 
 Main | Partitions
 :-------------------------:|:-------------------------:
-![main](https://cdn.discordapp.com/attachments/377518386826969088/567048477058662401/1.JPG) | ![partitions](https://cdn.discordapp.com/attachments/377518386826969088/567048488823554051/2.JPG)
+![main](https://cdn.discordapp.com/attachments/377518386826969088/567051362827763717/1.JPG) | ![partitions](https://cdn.discordapp.com/attachments/377518386826969088/567051371375755264/2.JPG)
 
 ## Build Requirements
 * [Visual Studio Community 2019](https://visualstudio.microsoft.com/downloads/)
