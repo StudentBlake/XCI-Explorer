@@ -1,15 +1,19 @@
 using System.Linq;
 using System.Text;
 
-namespace XCI_Explorer {
-    public static class NACP {
-        public class NACP_String {
+namespace XCI_Explorer
+{
+    public static class NACP
+    {
+        public class NACP_String
+        {
             public byte[] Data;
             public byte Check;
             public string GameName;
             public string GameAuthor;
 
-            public NACP_String(byte[] data) {
+            public NACP_String(byte[] data)
+            {
                 Data = data;
                 Check = Data[0];
                 GameName = Encoding.UTF8.GetString(Data.Take(512).ToArray());
@@ -17,12 +21,14 @@ namespace XCI_Explorer {
             }
         }
 
-        public class NACP_Data {
+        public class NACP_Data
+        {
             public byte[] Data;
             public string GameVer;
             public string GameProd;
 
-            public NACP_Data(byte[] data) {
+            public NACP_Data(byte[] data)
+            {
                 Data = data;
                 GameVer = Encoding.UTF8.GetString(Data.Skip(0x60).Take(16).ToArray());
                 GameProd = Encoding.UTF8.GetString(Data.Skip(0xA8).Take(8).ToArray());

@@ -2,16 +2,20 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace XCI_Explorer {
-    internal static class PFS0 {
-        public class PFS0_Header {
+namespace XCI_Explorer
+{
+    internal static class PFS0
+    {
+        public class PFS0_Header
+        {
             public byte[] Data;
             public string Magic;
             public int FileCount;
             public int StringTableSize;
             public int Reserved;
 
-            public PFS0_Header(byte[] data) {
+            public PFS0_Header(byte[] data)
+            {
                 Data = data;
                 Magic = Encoding.UTF8.GetString(Data.Take(4).ToArray());
                 FileCount = BitConverter.ToInt32(data, 4);
@@ -20,7 +24,8 @@ namespace XCI_Explorer {
             }
         }
 
-        public class PFS0_Entry {
+        public class PFS0_Entry
+        {
             public byte[] Data;
             public long Offset;
             public long Size;
@@ -28,7 +33,8 @@ namespace XCI_Explorer {
             public int Reserved;
             public string Name;
 
-            public PFS0_Entry(byte[] data) {
+            public PFS0_Entry(byte[] data)
+            {
                 Data = data;
                 Offset = BitConverter.ToInt64(data, 0);
                 Size = BitConverter.ToInt64(data, 8);

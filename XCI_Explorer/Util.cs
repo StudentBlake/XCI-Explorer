@@ -2,10 +2,14 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace XCI_Explorer {
-    internal static class Util {
-        public static string GetCapacity(int id) {
-            switch (id) {
+namespace XCI_Explorer
+{
+    internal static class Util
+    {
+        public static string GetCapacity(int id)
+        {
+            switch (id)
+            {
                 case 248:
                     return "2GB";
                 case 240:
@@ -21,8 +25,10 @@ namespace XCI_Explorer {
             }
         }
 
-        public static string GetMkey(byte id) {
-            switch (id) {
+        public static string GetMkey(byte id)
+        {
+            switch (id)
+            {
                 case 0:
                 case 1:
                     return "MasterKey0 (1.0.0-2.3.0)";
@@ -95,25 +101,30 @@ namespace XCI_Explorer {
             }
         }
 
-        public static bool checkFile(string filepath) {
-            if (File.Exists(filepath)) {
+        public static bool checkFile(string filepath)
+        {
+            if (File.Exists(filepath))
+            {
                 return true;
             }
             return false;
         }
 
-        public static byte[] StringToByteArray(string hex) {
+        public static byte[] StringToByteArray(string hex)
+        {
             return (from x in Enumerable.Range(0, hex.Length)
                     where x % 2 == 0
                     select Convert.ToByte(hex.Substring(x, 2), 16)).ToArray();
         }
 
-        public static string Base64Encode(string plainText) {
+        public static string Base64Encode(string plainText)
+        {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return System.Convert.ToBase64String(plainTextBytes);
         }
 
-        public static string Base64Decode(string base64EncodedData) {
+        public static string Base64Decode(string base64EncodedData)
+        {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }

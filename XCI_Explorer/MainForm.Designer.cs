@@ -2,8 +2,10 @@
 using System.Windows.Forms;
 using XCI_Explorer.Helpers;
 
-namespace XCI_Explorer {
-    partial class MainForm {
+namespace XCI_Explorer
+{
+    partial class MainForm
+    {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -13,8 +15,10 @@ namespace XCI_Explorer {
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -26,7 +30,8 @@ namespace XCI_Explorer {
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             this.B_LoadROM = new System.Windows.Forms.Button();
             this.TB_File = new System.Windows.Forms.TextBox();
             this.TABC_Main = new System.Windows.Forms.TabControl();

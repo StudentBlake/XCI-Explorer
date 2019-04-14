@@ -2,9 +2,12 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace XCI_Explorer {
-    public static class XCI {
-        public class XCI_Header {
+namespace XCI_Explorer
+{
+    public static class XCI
+    {
+        public class XCI_Header
+        {
             public byte[] Data;
             public string Magic;
             public byte CardSize1;
@@ -12,7 +15,8 @@ namespace XCI_Explorer {
             public long HFS0OffsetPartition;
             public long HFS0SizeParition;
 
-            public XCI_Header(byte[] data) {
+            public XCI_Header(byte[] data)
+            {
                 Data = data;
                 Magic = Encoding.UTF8.GetString(Data.Skip(256).Take(4).ToArray());
                 CardSize1 = Data[269];
