@@ -43,11 +43,11 @@ namespace XCI_Explorer
                 case 6:
                     return "MasterKey5 (6.0.0-6.1.0)";
                 case 7:
-                    return "MasterKey6 (?)";
+                    return "MasterKey6 (6.2.0)";
                 case 8:
-                    return "MasterKey7 (?)";
+                    return "MasterKey7 (7.0.0-7.0.1)";
                 case 9:
-                    return "MasterKey8 (?)";
+                    return "MasterKey8 (8.0.0+)";
                 case 10:
                     return "MasterKey9 (?)";
                 case 11:

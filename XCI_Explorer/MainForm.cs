@@ -69,7 +69,7 @@ namespace XCI_Explorer
                 {
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L1hUTnFRNEJY"), "keys.txt");
+                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3LzRieWY1NzFk"), "keys.txt");
                     }
                 }
 
