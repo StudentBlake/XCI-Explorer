@@ -103,11 +103,7 @@ namespace XCI_Explorer
 
         public static bool checkFile(string filepath)
         {
-            if (File.Exists(filepath))
-            {
-                return true;
-            }
-            return false;
+            return File.Exists(filepath);
         }
 
         public static byte[] StringToByteArray(string hex)

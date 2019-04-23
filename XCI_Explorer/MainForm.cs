@@ -48,9 +48,7 @@ namespace XCI_Explorer
         {
             InitializeComponent();
 
-            // Set number of numbers in version number
-            const int NUMBERSINVERSION = 3;
-            this.Text = "XCI Explorer v" + getAssemblyVersion(NUMBERSINVERSION);
+            this.Text = "XCI Explorer v" + getAssemblyVersion();
 
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
@@ -99,12 +97,12 @@ namespace XCI_Explorer
             }
         }
 
-        private string getAssemblyVersion(int num)
+        private string getAssemblyVersion()
         {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
 
-            assemblyVersion = string.Join(".", versionArray.Take(num));
+            assemblyVersion = string.Join(".", versionArray.Take(3));
 
             return assemblyVersion;
         }

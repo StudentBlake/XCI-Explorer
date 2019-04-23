@@ -55,8 +55,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XCI_Explorer.Helpers\BetterBinaryReader.cs" />
     <Compile Include="XCI_Explorer.Helpers\BetterTreeNode.cs" />
-    <Compile Include="XCI_Explorer.Properties\Resources.cs" />
-    <Compile Include="XCI_Explorer.Properties\Settings.cs" />
     <Compile Include="XCI_Explorer\CNMT.cs" />
     <Compile Include="XCI_Explorer\MainForm.cs">
       <SubType>Form</SubType>
