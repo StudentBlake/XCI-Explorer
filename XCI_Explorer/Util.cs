@@ -45,9 +45,9 @@ namespace XCI_Explorer
                 case 7:
                     return "MasterKey6 (6.2.0)";
                 case 8:
-                    return "MasterKey7 (7.0.0-7.0.1)";
+                    return "MasterKey7 (7.0.0-8.0.1)";
                 case 9:
-                    return "MasterKey8 (8.0.0+)";
+                    return "MasterKey8 (?)";
                 case 10:
                     return "MasterKey9 (?)";
                 case 11:
