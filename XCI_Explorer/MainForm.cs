@@ -371,6 +371,118 @@ namespace XCI_Explorer
                     }
                 }
 
+                if (String.IsNullOrEmpty(ncaTarget))
+                {
+                    //Missing content metadata xml. Read from content metadata nca instead
+                    for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++)
+                    {
+                        if (array3[n].Name.EndsWith(".cnmt.nca"))
+                        {
+                            try
+                            {
+                                File.Delete("meta");
+                                Directory.Delete("data", true);
+                            }
+                            catch { }
+
+                            using (FileStream fileStream2 = File.OpenWrite("meta"))
+                            {
+                                fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
+                                byte[] buffer = new byte[8192];
+                                long num = array3[n].Size;
+                                int num4;
+                                while ((num4 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
+                                {
+                                    fileStream2.Write(buffer, 0, num4);
+                                    num -= num4;
+                                }
+                                fileStream2.Close();
+                            }
+
+                            process = new Process();
+                            process.StartInfo = new ProcessStartInfo
+                            {
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                FileName = "tools\\hactool.exe",
+                                Arguments = "-k keys.txt --section0dir=data meta",
+                                UseShellExecute = false,
+                                RedirectStandardOutput = true,
+                                CreateNoWindow = true
+                            };
+                            process.Start();
+
+                            string masterkey = "";
+                            while (!process.StandardOutput.EndOfStream)
+                            {
+                                string output = process.StandardOutput.ReadLine();
+                                if (output.StartsWith("Master Key Revision"))
+                                {
+                                    masterkey = Regex.Replace(output, @"\s+", " ");
+                                }
+                            }
+                            process.WaitForExit();
+
+                            if (!Directory.Exists("data"))
+                            {
+                                MessageBox.Show(masterkey + " is missing!");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    string[] cnmt = Directory.GetFiles("data", "*.cnmt");
+                                    if (cnmt.Length != 0)
+                                    {
+                                        using (FileStream fileStream3 = File.OpenRead(cnmt[0]))
+                                        {
+                                            byte[] buffer = new byte[32];
+                                            byte[] buffer2 = new byte[56];
+                                            CNMT.CNMT_Header[] array7 = new CNMT.CNMT_Header[1];
+
+                                            fileStream3.Read(buffer, 0, 32);
+                                            array7[0] = new CNMT.CNMT_Header(buffer);
+
+                                            byte[] TitleID = BitConverter.GetBytes(array7[0].TitleID);
+                                            Array.Reverse(TitleID);
+                                            TB_TID.Text = BitConverter.ToString(TitleID).Replace("-", "");
+                                            xmlVersion = "v" + array7[0].TitleVersion.ToString();
+
+                                            if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.REGULAR_APPLICATION)
+                                            {
+                                                contentType = "Application";
+                                            }
+                                            else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.UPDATE_TITLE)
+                                            {
+                                                contentType = "Patch";
+                                            }
+                                            else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.ADD_ON_CONTENT)
+                                            {
+                                                contentType = "AddOnContent";
+                                            }
+
+                                            fileStream3.Position = array7[0].Offset + 32;
+                                            CNMT.CNMT_Entry[] array9 = new CNMT.CNMT_Entry[array7[0].ContentCount];
+                                            for (int k = 0; k < array7[0].ContentCount; k++)
+                                            {
+                                                fileStream3.Read(buffer2, 0, 56);
+                                                array9[k] = new CNMT.CNMT_Entry(buffer2);
+                                                if (array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.CONTROL || array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.DATA)
+                                                {
+                                                    ncaTarget = BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "") + ".nca";
+                                                    break;
+                                                }
+                                            }
+
+                                            fileStream3.Close();
+                                        }
+                                    }
+                                }
+                                catch { }
+                            }
+                        }
+                    }
+                }
+
                 for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++)
                 {
                     if (array3[n].Name.Equals(ncaTarget))
