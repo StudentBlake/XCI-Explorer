@@ -151,23 +151,24 @@ namespace XCI_Explorer
 
         private void ProcessFile()
         {
-            if (Path.GetExtension(TB_File.Text).ToLower() == ".nsp")
-            {
-                // Code needs refactoring 
-                LB_SelectedData.Text = "";
-                LB_DataOffset.Text = "";
-                LB_DataSize.Text = "";
-                LB_HashedRegionSize.Text = "";
-                LB_ExpectedHash.Text = "";
-                LB_ActualHash.Text = "";
-                B_Extract.Enabled = false;
+            // Code needs refactoring 
+            LB_SelectedData.Text = "";
+            LB_DataOffset.Text = "";
+            LB_DataSize.Text = "";
+            LB_HashedRegionSize.Text = "";
+            LB_ExpectedHash.Text = "";
+            LB_ActualHash.Text = "";
+            B_Extract.Enabled = false;
 
+            if (CheckNSP())
+            {
                 B_TrimXCI.Enabled = false;
                 B_ExportCert.Enabled = false;
                 B_ImportCert.Enabled = false;
                 B_ViewCert.Enabled = false;
                 B_ClearCert.Enabled = false;
-                LoadNSPMetadata();
+
+                LoadNSP();
             }
             else if (CheckXCI())
             {
@@ -176,6 +177,7 @@ namespace XCI_Explorer
                 B_ImportCert.Enabled = true;
                 B_ViewCert.Enabled = true;
                 B_ClearCert.Enabled = true;
+
                 LoadXCI();
             }
             else
@@ -188,7 +190,7 @@ namespace XCI_Explorer
         private void B_LoadROM_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Switch XCI/NSP (*.xci, *.nsp)|*.xci;*.nsp|All files (*.*)|*.*";
+            openFileDialog.Filter = "Switch Game File (*.xci, *.nsp, *.nsz)|*.xci;*.nsp;*.nsz|All Files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 TB_File.Text = openFileDialog.FileName;
@@ -231,7 +233,7 @@ namespace XCI_Explorer
         }
 
         // Giba's better implementation (more native)
-        public void LoadNSPMetadata()
+        public void LoadNSP()
         {
             CB_RegionName.Items.Clear();
             CB_RegionName.Enabled = true;
@@ -1122,6 +1124,20 @@ namespace XCI_Explorer
             fileStream.Read(array2, 0, 16);
             HFS0.HFS0_Headers[0] = new HFS0.HFS0_Header(array2);
             fileStream.Close();
+            return true;
+        }
+
+        public bool CheckNSP()
+        {
+            FileStream fileStream = File.OpenRead(TB_File.Text);
+            byte[] array = new byte[16];
+            fileStream.Read(array, 0, 16);
+            PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array);
+            fileStream.Close();
+            if (!PFS0.PFS0_Headers[0].Magic.Contains("PFS0"))
+            {
+                return false;
+            }
             return true;
         }
 
