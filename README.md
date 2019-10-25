@@ -1,6 +1,6 @@
 # XCI Explorer
 
-[Original MaxConsole Release](https://www.maxconsole.com/threads/exclusive-xci-explorer-released-for-switch-game-cartridge-backups.47046/)
+Originally Released on MaxConsole
 
 View contents of XCI files and more!
 
