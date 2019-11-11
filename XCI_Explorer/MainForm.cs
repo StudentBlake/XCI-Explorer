@@ -78,7 +78,7 @@ namespace XCI_Explorer
                 }
             }
 
-            if (!File.Exists("tools\\hactool.exe"))
+            if (!File.Exists($"tools{Path.DirectorySeparatorChar}hactool.exe"))
             {
                 Directory.CreateDirectory("tools");
                 MessageBox.Show("hactool.exe is missing.\nPlease include hactool.exe in the 'tools' folder.");
@@ -416,7 +416,7 @@ namespace XCI_Explorer
                             process.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = "tools\\hactool.exe",
+                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
                                 Arguments = "-k keys.txt --section0dir=data meta",
                                 UseShellExecute = false,
                                 RedirectStandardOutput = true,
@@ -505,7 +505,7 @@ namespace XCI_Explorer
                         byte[] array5 = new byte[64 * 1024];
                         fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
 
-                        using (Stream output = File.Create("tmp\\" + ncaTarget))
+                        using (Stream output = File.Create($"tmp{Path.DirectorySeparatorChar}" + ncaTarget))
                         {
                             long Size = array3[n].Size;
                             int result = 0;
@@ -533,7 +533,7 @@ namespace XCI_Explorer
                     process.StartInfo = new ProcessStartInfo
                     {
                         WindowStyle = ProcessWindowStyle.Hidden,
-                        FileName = "tools\\hactool.exe",
+                        FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
                         Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
                     };
 
@@ -544,7 +544,7 @@ namespace XCI_Explorer
 
                     try
                     {
-                        byte[] source = File.ReadAllBytes("tmp\\control.nacp");
+                        byte[] source = File.ReadAllBytes($"tmp{Path.DirectorySeparatorChar}control.nacp");
                         NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
 
                         for (int i = 0; i < NACP.NACP_Strings.Length; i++)
@@ -554,7 +554,7 @@ namespace XCI_Explorer
                             if (NACP.NACP_Strings[i].Check != 0)
                             {
                                 CB_RegionName.Items.Add(Language[i]);
-                                string icon_filename = "tmp\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                string icon_filename = $"tmp{Path.DirectorySeparatorChar}icon_" + Language[i].Replace(" ", "") + ".dat";
                                 if (File.Exists(icon_filename))
                                 {
                                     using (Bitmap original = new Bitmap(icon_filename))
@@ -613,7 +613,7 @@ namespace XCI_Explorer
                 process.StartInfo = new ProcessStartInfo
                 {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "tools\\hactool.exe",
+                    FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
                     Arguments = "-k keys.txt tmp/" + ncaTarget,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -713,7 +713,7 @@ namespace XCI_Explorer
                             process.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = "tools\\hactool.exe",
+                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
                                 Arguments = "-k keys.txt --section0dir=data meta"
                             };
                             process.Start();
@@ -784,15 +784,15 @@ namespace XCI_Explorer
                             process.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = "tools\\hactool.exe",
+                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
                                 Arguments = "-k keys.txt --romfsdir=data meta"
                             };
                             process.Start();
                             process.WaitForExit();
 
-                            if (File.Exists("data\\control.nacp"))
+                            if (File.Exists($"data{Path.DirectorySeparatorChar}control.nacp"))
                             {
-                                byte[] source = File.ReadAllBytes("data\\control.nacp");
+                                byte[] source = File.ReadAllBytes($"data{Path.DirectorySeparatorChar}control.nacp");
                                 NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
 
                                 string GameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
@@ -815,7 +815,7 @@ namespace XCI_Explorer
                                         if (NACP.NACP_Strings[i].Check != 0 && !CB_RegionName.Items.Contains(Language[i]))
                                         {
                                             CB_RegionName.Items.Add(Language[i]);
-                                            string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                                            string icon_filename = $"data{Path.DirectorySeparatorChar}icon_" + Language[i].Replace(" ", "") + ".dat";
                                             if (File.Exists(icon_filename))
                                             {
                                                 using (Bitmap original = new Bitmap(icon_filename))
