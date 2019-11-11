@@ -1,8 +1,8 @@
 # XCI Explorer
 
-Originally Released on MaxConsole
+Originally Released by Anonymous on MaxConsole
 
-View contents of XCI files and more!
+View the contents of Switch files and more!
 
 ## Features
 * View metadata for XCI and NSP files
@@ -13,18 +13,18 @@ View contents of XCI files and more!
 
 Main | Partitions
 :-------------------------:|:-------------------------:
-![main](https://cdn.discordapp.com/attachments/377518386826969088/567051362827763717/1.JPG) | ![partitions](https://cdn.discordapp.com/attachments/377518386826969088/567051371375755264/2.JPG)
+![main](https://cdn.discordapp.com/attachments/373320120707055617/643560465594712071/1.PNG) | ![partitions](https://cdn.discordapp.com/attachments/373320120707055617/643560478609506317/2.PNG)
 
 ## Build Requirements
 * [Visual Studio Community 2019](https://visualstudio.microsoft.com/downloads/)
 * [hactool](https://github.com/SciresM/hactool/releases)
-* [Lockpick](https://gbatemp.net/threads/switch-7-0-key-derivation-lockpick_rcm-payload.532916/)
+* [Lockpick](https://github.com/shchmue/Lockpick_RCM)
 
 ## Build Instructions
 * Open **XCI Explorer.sln**
 * Change *Debug* to *Release* in the dropdown menu
 * Go to *Build*, then *Build Solution*
-* Extract **hactool.zip** to `XCI-Explorer/bin/Release/tools/` folder
+* Extract **hactool.zip** to the `XCI-Explorer/bin/Release/tools/` folder
 * Run **XCI-Explorer.exe**
 
 ## Special Thanks
@@ -32,4 +32,4 @@ Main | Partitions
 * garoxas - Game revision, QoL changes and bug fixes
 
 ## Disclaimer
-This is not my original work. I just made minor changes with the help of others.
+* This is not my original work. I just made minor changes with the help of others.
