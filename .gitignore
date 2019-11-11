@@ -351,6 +351,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-# Precompiled HexBox DLL
-Be.Windows.Forms.HexBox.dll
