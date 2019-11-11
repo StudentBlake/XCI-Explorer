@@ -160,31 +160,39 @@ namespace XCI_Explorer
             LB_ActualHash.Text = "";
             B_Extract.Enabled = false;
 
-            if (CheckNSP())
+            try
             {
-                B_TrimXCI.Enabled = false;
-                B_ExportCert.Enabled = false;
-                B_ImportCert.Enabled = false;
-                B_ViewCert.Enabled = false;
-                B_ClearCert.Enabled = false;
+                if (CheckNSP())
+                {
+                    B_TrimXCI.Enabled = false;
+                    B_ExportCert.Enabled = false;
+                    B_ImportCert.Enabled = false;
+                    B_ViewCert.Enabled = false;
+                    B_ClearCert.Enabled = false;
 
-                LoadNSP();
-            }
-            else if (CheckXCI())
-            {
-                B_TrimXCI.Enabled = true;
-                B_ExportCert.Enabled = true;
-                B_ImportCert.Enabled = true;
-                B_ViewCert.Enabled = true;
-                B_ClearCert.Enabled = true;
+                    LoadNSP();
+                }
+                else if (CheckXCI())
+                {
+                    B_TrimXCI.Enabled = true;
+                    B_ExportCert.Enabled = true;
+                    B_ImportCert.Enabled = true;
+                    B_ViewCert.Enabled = true;
+                    B_ClearCert.Enabled = true;
 
-                LoadXCI();
+                    LoadXCI();
+                }
+                else
+                {
+                    TB_File.Text = null;
+                    MessageBox.Show("File is corrupt or unsupported.");
+                }
             }
-            else
+            catch(Exception e)
             {
-                TB_File.Text = null;
-                MessageBox.Show("Unsupported file.");
+                MessageBox.Show("Error: " + e.ToString() + "\nFile is corrupt or unsupported.");
             }
+            
         }
 
         private void B_LoadROM_Click(object sender, EventArgs e)
@@ -230,6 +238,9 @@ namespace XCI_Explorer
             LoadPartitions();
             LoadNCAData();
             LoadGameInfos();
+
+            if (isTrimmed())
+                B_TrimXCI.Enabled = false;
         }
 
         // Giba's better implementation (more native)
@@ -560,7 +571,7 @@ namespace XCI_Explorer
                         }
                         else
                         {
-                            TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "") + " (" + xmlVersion + ")";
+                            TB_GameRev.Text = xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")";
                         }
                         TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", "");
                         if (TB_ProdCode.Text == "")
@@ -868,6 +879,11 @@ namespace XCI_Explorer
             byte[] hashValue;
             hashValue = mySHA256.ComputeHash(ba);
             return ByteArrayToString(hashValue);
+        }
+
+        public bool isTrimmed()
+        {
+            return TB_ROMExactSize.Text == TB_ExactUsedSpace.Text;
         }
 
         private void LoadPartitions()
@@ -1301,7 +1317,7 @@ namespace XCI_Explorer
             {
                 if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
+                    if (!isTrimmed())
                     {
                         FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Write);
                         fileStream.SetLength((long)UsedSize);
