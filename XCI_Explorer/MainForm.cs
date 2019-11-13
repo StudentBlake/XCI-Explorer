@@ -227,6 +227,8 @@ namespace XCI_Explorer
             TB_ROMSize.Text = $"{num:0.##} {array[num2]}";
             double num3 = UsedSize = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
             TB_ExactUsedSpace.Text = "(" + num3.ToString() + " bytes)";
+            if (isTrimmed())
+                B_TrimXCI.Enabled = false;
             num2 = 0;
             while (num3 >= 1024.0 && num2 < array.Length - 1)
             {
@@ -238,9 +240,6 @@ namespace XCI_Explorer
             LoadPartitions();
             LoadNCAData();
             LoadGameInfos();
-
-            if (isTrimmed())
-                B_TrimXCI.Enabled = false;
         }
 
         // Giba's better implementation (more native)
