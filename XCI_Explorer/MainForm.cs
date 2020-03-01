@@ -124,6 +124,7 @@ namespace XCI_Explorer
                                                      where x.Length > 1
                                                      select x).ToDictionary((string[] x) => x[0].Trim(), (string[] x) => x[1]);
             Mkey = "master_key_";
+			string MkeyL = "master_key_";
             if (NCA.NCA_Headers[0].MasterKeyRev == 0 || NCA.NCA_Headers[0].MasterKeyRev == 1)
             {
                 Mkey += "00";
@@ -131,7 +132,12 @@ namespace XCI_Explorer
             else if (NCA.NCA_Headers[0].MasterKeyRev < 17)
             {
                 int num = NCA.NCA_Headers[0].MasterKeyRev - 1;
-                Mkey = Mkey + "0" + num.ToString();
+                string capchar = num.ToString("X");
+                Mkey = Mkey + "0" + capchar;
+                char cache1 = capchar[0];
+                int cache2 = cache1 + 32;
+                char lowchar = (char)cache2;
+                MkeyL = MkeyL + "0" + lowchar;
             }
             else if (NCA.NCA_Headers[0].MasterKeyRev >= 17)
             {
@@ -141,6 +147,15 @@ namespace XCI_Explorer
             try
             {
                 Mkey = dictionary[Mkey].Replace(" ", "");
+                return true;
+            }
+            catch
+            {
+                int flag = 1;
+            }
+            try
+            {
+                MkeyL = dictionary[MkeyL].Replace(" ", "");
                 return true;
             }
             catch
@@ -634,6 +649,7 @@ namespace XCI_Explorer
                     else if (strArray[0] == "Master Key Revision")
                     {
                         string MasterKey = strArray[1].Trim();
+						
                         if (MasterKey.Contains("Unknown"))
                         {
                             int keyblob;
@@ -641,8 +657,26 @@ namespace XCI_Explorer
                             {
                                 MasterKey = Util.GetMkey((byte)(keyblob + 1)).Replace("MasterKey", "");
                             }
+							TB_MKeyRev.Text = "MasterKey" + MasterKey;
                         }
-                        TB_MKeyRev.Text = "MasterKey" + MasterKey;
+						else
+						{
+							int keyvalue;
+                            char masterkeychar = MasterKey[2];
+                                      
+                            if (masterkeychar - 'A' < 0)
+                            {
+                                keyvalue = masterkeychar - '0' + 1;
+                            }
+                            else
+                            {
+                                keyvalue = masterkeychar - 'A' + 10 + 1;
+                            }						
+
+                            MasterKey = Util.GetMkey((byte)keyvalue);
+					    	TB_MKeyRev.Text = MasterKey;
+						}
+
                         break;
                     }
                 }
