@@ -124,7 +124,7 @@ namespace XCI_Explorer
                                                      where x.Length > 1
                                                      select x).ToDictionary((string[] x) => x[0].Trim(), (string[] x) => x[1]);
             Mkey = "master_key_";
-			string MkeyL = "master_key_";
+	    string MkeyL = "master_key_";
             if (NCA.NCA_Headers[0].MasterKeyRev == 0 || NCA.NCA_Headers[0].MasterKeyRev == 1)
             {
                 Mkey += "00";
@@ -659,9 +659,9 @@ namespace XCI_Explorer
                             }
 							TB_MKeyRev.Text = "MasterKey" + MasterKey;
                         }
-						else
-						{
-							int keyvalue;
+			else
+			{
+			    int keyvalue;
                             char masterkeychar = MasterKey[2];
                                       
                             if (masterkeychar - 'A' < 0)
@@ -674,8 +674,8 @@ namespace XCI_Explorer
                             }						
 
                             MasterKey = Util.GetMkey((byte)keyvalue);
-					    	TB_MKeyRev.Text = MasterKey;
-						}
+			    TB_MKeyRev.Text = MasterKey;
+			}
 
                         break;
                     }
