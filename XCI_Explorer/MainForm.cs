@@ -124,7 +124,7 @@ namespace XCI_Explorer
                                                      where x.Length > 1
                                                      select x).ToDictionary((string[] x) => x[0].Trim(), (string[] x) => x[1]);
             Mkey = "master_key_";
-	    string MkeyL = "master_key_";
+			string MkeyL = "master_key_";
             if (NCA.NCA_Headers[0].MasterKeyRev == 0 || NCA.NCA_Headers[0].MasterKeyRev == 1)
             {
                 Mkey += "00";
@@ -132,17 +132,18 @@ namespace XCI_Explorer
             else if (NCA.NCA_Headers[0].MasterKeyRev < 17)
             {
                 int num = NCA.NCA_Headers[0].MasterKeyRev - 1;
-                string capchar = num.ToString("X");
-                Mkey = Mkey + "0" + capchar;
-                char cache1 = capchar[0];
-                int cache2 = cache1 + 32;
-                char lowchar = (char)cache2;
+                string capchar = num.ToString("X"); 
+                string lowchar = capchar.ToLower();
+				Mkey = Mkey + "0" + capchar;
                 MkeyL = MkeyL + "0" + lowchar;
             }
             else if (NCA.NCA_Headers[0].MasterKeyRev >= 17)
             {
                 int num2 = NCA.NCA_Headers[0].MasterKeyRev - 1;
+                string capchar = num2.ToString("X");
+                string lowchar = capchar.ToLower();
                 Mkey += num2.ToString();
+                MkeyL += num2.ToString();
             }
             try
             {
@@ -151,16 +152,15 @@ namespace XCI_Explorer
             }
             catch
             {
-                int flag = 1;
-            }
-            try
-            {
-                MkeyL = dictionary[MkeyL].Replace(" ", "");
-                return true;
-            }
-            catch
-            {
-                return false;
+                try
+                {
+                    MkeyL = dictionary[MkeyL].Replace(" ", "");
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -649,33 +649,23 @@ namespace XCI_Explorer
                     else if (strArray[0] == "Master Key Revision")
                     {
                         string MasterKey = strArray[1].Trim();
+						int keyblob;
 						
                         if (MasterKey.Contains("Unknown"))
                         {
-                            int keyblob;
                             if (int.TryParse(new string(MasterKey.TakeWhile(Char.IsDigit).ToArray()), out keyblob))
                             {
                                 MasterKey = Util.GetMkey((byte)(keyblob + 1)).Replace("MasterKey", "");
                             }
 							TB_MKeyRev.Text = "MasterKey" + MasterKey;
                         }
-			else
-			{
-			    int keyvalue;
-                            char masterkeychar = MasterKey[2];
-                                      
-                            if (masterkeychar - 'A' < 0)
-                            {
-                                keyvalue = masterkeychar - '0' + 1;
-                            }
-                            else
-                            {
-                                keyvalue = masterkeychar - 'A' + 10 + 1;
-                            }						
-
-                            MasterKey = Util.GetMkey((byte)keyvalue);
-			    TB_MKeyRev.Text = MasterKey;
-			}
+						else
+						{
+							MasterKey = MasterKey.Split(new char[2] {'x',' '})[1];
+							keyblob = Convert.ToInt32(MasterKey, 16);
+							MasterKey = Util.GetMkey((byte)(keyblob+1));
+							TB_MKeyRev.Text = MasterKey;
+						}
 
                         break;
                     }
