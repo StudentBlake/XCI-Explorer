@@ -67,7 +67,7 @@ namespace XCI_Explorer
                 {
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L3dZbUxUTkxx"), "keys.txt");
+                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L2NWR3JQSHp6"), "keys.txt");
                     }
                 }
 
@@ -124,7 +124,7 @@ namespace XCI_Explorer
                                                      where x.Length > 1
                                                      select x).ToDictionary((string[] x) => x[0].Trim(), (string[] x) => x[1]);
             Mkey = "master_key_";
-			string MkeyL = "master_key_";
+            string MkeyL = "master_key_";
             if (NCA.NCA_Headers[0].MasterKeyRev == 0 || NCA.NCA_Headers[0].MasterKeyRev == 1)
             {
                 Mkey += "00";
@@ -132,9 +132,9 @@ namespace XCI_Explorer
             else if (NCA.NCA_Headers[0].MasterKeyRev < 17)
             {
                 int num = NCA.NCA_Headers[0].MasterKeyRev - 1;
-                string capchar = num.ToString("X"); 
+                string capchar = num.ToString("X");
                 string lowchar = capchar.ToLower();
-				Mkey = Mkey + "0" + capchar;
+                Mkey = Mkey + "0" + capchar;
                 MkeyL = MkeyL + "0" + lowchar;
             }
             else if (NCA.NCA_Headers[0].MasterKeyRev >= 17)
@@ -203,11 +203,11 @@ namespace XCI_Explorer
                     MessageBox.Show("File is corrupt or unsupported.");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show("Error: " + e.ToString() + "\nFile is corrupt or unsupported.");
             }
-            
+
         }
 
         private void B_LoadROM_Click(object sender, EventArgs e)
@@ -649,23 +649,23 @@ namespace XCI_Explorer
                     else if (strArray[0] == "Master Key Revision")
                     {
                         string MasterKey = strArray[1].Trim();
-						int keyblob;
-						
+                        int keyblob;
+
                         if (MasterKey.Contains("Unknown"))
                         {
                             if (int.TryParse(new string(MasterKey.TakeWhile(Char.IsDigit).ToArray()), out keyblob))
                             {
                                 MasterKey = Util.GetMkey((byte)(keyblob + 1)).Replace("MasterKey", "");
                             }
-							TB_MKeyRev.Text = "MasterKey" + MasterKey;
+                            TB_MKeyRev.Text = "MasterKey" + MasterKey;
                         }
-						else
-						{
-							MasterKey = MasterKey.Split(new char[2] {'x',' '})[1];
-							keyblob = Convert.ToInt32(MasterKey, 16);
-							MasterKey = Util.GetMkey((byte)(keyblob+1));
-							TB_MKeyRev.Text = MasterKey;
-						}
+                        else
+                        {
+                            MasterKey = MasterKey.Split(new char[2] { 'x', ' ' })[1];
+                            keyblob = Convert.ToInt32(MasterKey, 16);
+                            MasterKey = Util.GetMkey((byte)(keyblob + 1));
+                            TB_MKeyRev.Text = MasterKey;
+                        }
 
                         break;
                     }
@@ -674,10 +674,19 @@ namespace XCI_Explorer
                 process.Close();
             }
             catch { }
-            if (Directory.Exists("tmp"))
+
+            try
+            {
+                File.Delete("meta");
+                Directory.Delete("data", true);
+            }
+            catch { }
+
+            try
             {
                 Directory.Delete("tmp", true);
             }
+            catch { }
 
             TB_Capacity.Text = "eShop";
 
@@ -708,15 +717,12 @@ namespace XCI_Explorer
 
                         if (SecureName[si].EndsWith(".cnmt.nca"))
                         {
-                            if (File.Exists("meta"))
+                            try
                             {
                                 File.Delete("meta");
-                            }
-
-                            if (Directory.Exists("data"))
-                            {
                                 Directory.Delete("data", true);
                             }
+                            catch { }
 
                             using (FileStream fileStream2 = File.OpenWrite("meta"))
                             {
@@ -779,15 +785,12 @@ namespace XCI_Explorer
 
                         if (ncaTarget.Contains(SecureName[si]))
                         {
-                            if (File.Exists("meta"))
+                            try
                             {
                                 File.Delete("meta");
-                            }
-
-                            if (Directory.Exists("data"))
-                            {
                                 Directory.Delete("data", true);
                             }
+                            catch { }
 
                             using (FileStream fileStream2 = File.OpenWrite("meta"))
                             {
