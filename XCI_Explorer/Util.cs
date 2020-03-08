@@ -10,6 +10,8 @@ namespace XCI_Explorer
         {
             switch (id)
             {
+                case 250:
+                    return "1GB";
                 case 248:
                     return "2GB";
                 case 240:
@@ -51,7 +53,7 @@ namespace XCI_Explorer
                 case 10:
                     return "MasterKey9 (9.0.0-9.0.1)";
                 case 11:
-                    return "MasterKey10 (?)";
+                    return "MasterKey10 (9.1.0-9.2.0)";
                 case 12:
                     return "MasterKey11 (?)";
                 case 13:
