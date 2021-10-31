@@ -1345,11 +1345,13 @@ namespace XCI_Explorer
             {
                 if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    using CenterWinDialog centerInner = new CenterWinDialog(this);
                     if (!isTrimmed())
                     {
                         FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Write);
                         fileStream.SetLength((long)UsedSize);
                         fileStream.Close();
+                        B_TrimXCI.Enabled = false;
                         MessageBox.Show("Done.");
                         string[] array = new string[5]
                         {
@@ -1377,10 +1379,6 @@ namespace XCI_Explorer
                             num3 /= 1024.0;
                         }
                         TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
-                    }
-                    else
-                    {
-                        MessageBox.Show("No trimming needed!");
                     }
                 }
             }
