@@ -49,55 +49,55 @@ namespace XCI_Explorer
                 case 8:
                     return "MasterKey7 (7.0.0-8.0.1)";
                 case 9:
-                    return "MasterKey8 (8.1.0)";
+                    return "MasterKey8 (8.1.0-8.1.1)";
                 case 10:
                     return "MasterKey9 (9.0.0-9.0.1)";
                 case 11:
-                    return "MasterKey10 (9.1.0-9.2.0)";
+                    return "MasterKey10 (9.1.0-12.0.3)";
                 case 12:
-                    return "MasterKey11 (?)";
+                    return "MasterKey11 (12.1.0)";
                 case 13:
-                    return "MasterKey12 (?)";
+                    return "MasterKey12 (13.0.0-?)";
                 case 14:
-                    return "MasterKey13 (?)";
+                    return "MasterKey13";
                 case 15:
-                    return "MasterKey14 (?)";
+                    return "MasterKey14";
                 case 16:
-                    return "MasterKey15 (?)";
+                    return "MasterKey15";
                 case 17:
-                    return "MasterKey16 (?)";
+                    return "MasterKey16";
                 case 18:
-                    return "MasterKey17 (?)";
+                    return "MasterKey17";
                 case 19:
-                    return "MasterKey18 (?)";
+                    return "MasterKey18";
                 case 20:
-                    return "MasterKey19 (?)";
+                    return "MasterKey19";
                 case 21:
-                    return "MasterKey20 (?)";
+                    return "MasterKey20";
                 case 22:
-                    return "MasterKey21 (?)";
+                    return "MasterKey21";
                 case 23:
-                    return "MasterKey22 (?)";
+                    return "MasterKey22";
                 case 24:
-                    return "MasterKey23 (?)";
+                    return "MasterKey23";
                 case 25:
-                    return "MasterKey24 (?)";
+                    return "MasterKey24";
                 case 26:
-                    return "MasterKey25 (?)";
+                    return "MasterKey25";
                 case 27:
-                    return "MasterKey26 (?)";
+                    return "MasterKey26";
                 case 28:
-                    return "MasterKey27 (?)";
+                    return "MasterKey27";
                 case 29:
-                    return "MasterKey28 (?)";
+                    return "MasterKey28";
                 case 30:
-                    return "MasterKey29 (?)";
+                    return "MasterKey29";
                 case 31:
-                    return "MasterKey30 (?)";
+                    return "MasterKey30";
                 case 32:
-                    return "MasterKey31 (?)";
+                    return "MasterKey31";
                 case 33:
-                    return "MasterKey32 (?)";
+                    return "MasterKey32";
                 default:
                     return "?";
             }
