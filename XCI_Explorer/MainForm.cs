@@ -48,7 +48,7 @@ namespace XCI_Explorer
         {
             InitializeComponent();
 
-            this.Text = "XCI Explorer v" + getAssemblyVersion();
+            this.Text = $"XCI Explorer v{getAssemblyVersion()}";
 
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
@@ -57,13 +57,15 @@ namespace XCI_Explorer
             LB_ActualHash.Text = "";
             LB_ExpectedHash.Text = "";
 
+            this.Show();
+
             //MAC - Set Current Directory to application directory so it can find the keys
             String startupPath = Application.StartupPath;
             Directory.SetCurrentDirectory(startupPath);
 
             if (!File.Exists("keys.txt"))
             {
-
+                new CenterWinDialog(this);
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.\n", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     using HttpClient client = new();
@@ -75,14 +77,16 @@ namespace XCI_Explorer
 
                 if (!File.Exists("keys.txt"))
                 {
+                    new CenterWinDialog(this);
                     MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in the root folder.");
                     Environment.Exit(0);
                 }
             }
 
-            if (!File.Exists($"tools{Path.DirectorySeparatorChar}hactool.exe"))
+            if (!File.Exists(Path.Join("tools", "hactool.exe")))
             {
                 Directory.CreateDirectory("tools");
+                new CenterWinDialog(this);
                 MessageBox.Show("hactool.exe is missing.\nPlease include hactool.exe in the 'tools' folder.");
                 Environment.Exit(0);
             }
@@ -137,8 +141,8 @@ namespace XCI_Explorer
                 int num = NCA.NCA_Headers[0].MasterKeyRev - 1;
                 string capchar = num.ToString("X");
                 string lowchar = capchar.ToLower();
-                Mkey = Mkey + "0" + capchar;
-                MkeyL = MkeyL + "0" + lowchar;
+                Mkey += $"0{capchar}";
+                MkeyL += $"0{lowchar}";
             }
             else if (NCA.NCA_Headers[0].MasterKeyRev >= 17)
             {
@@ -169,7 +173,6 @@ namespace XCI_Explorer
 
         private void ProcessFile()
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
             // Code needs refactoring 
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
@@ -204,21 +207,23 @@ namespace XCI_Explorer
                 else
                 {
                     TB_File.Text = null;
+                    new CenterWinDialog(this);
                     MessageBox.Show("File is corrupt or unsupported.");
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error: " + e.ToString() + "\nFile is corrupt or unsupported.");
+                new CenterWinDialog(this);
+                MessageBox.Show($"Error: {e.ToString()}\nFile is corrupt or unsupported.");
             }
 
         }
 
         private void B_LoadROM_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Switch Game File (*.xci, *.nsp, *.nsz)|*.xci;*.nsp;*.nsz|All Files (*.*)|*.*";
+            new CenterWinDialog(this);
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 TB_File.Text = openFileDialog.FileName;
@@ -237,7 +242,7 @@ namespace XCI_Explorer
                 "TB"
             };
             double num = (double)new FileInfo(TB_File.Text).Length;
-            TB_ROMExactSize.Text = "(" + num.ToString() + " bytes)";
+            TB_ROMExactSize.Text = $"({num} bytes)";
             int num2 = 0;
             while (num >= 1024.0 && num2 < array.Length - 1)
             {
@@ -246,9 +251,12 @@ namespace XCI_Explorer
             }
             TB_ROMSize.Text = $"{num:0.##} {array[num2]}";
             double num3 = UsedSize = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
-            TB_ExactUsedSpace.Text = "(" + num3.ToString() + " bytes)";
+            TB_ExactUsedSpace.Text = $"({num3} bytes)";
             if (isTrimmed())
+            {
                 B_TrimXCI.Enabled = false;
+            }
+
             num2 = 0;
             while (num3 >= 1024.0 && num2 < array.Length - 1)
             {
@@ -301,7 +309,7 @@ namespace XCI_Explorer
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
             double num_fs = (double)fi.Length;
             int num2_fs = 0;
-            TB_ROMExactSize.Text = "(" + num_fs.ToString() + " bytes)";
+            TB_ROMExactSize.Text = $"({num_fs} bytes)";
             TB_ExactUsedSpace.Text = TB_ROMExactSize.Text;
 
             while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1)
@@ -372,25 +380,33 @@ namespace XCI_Explorer
                             if (System.Convert.ToInt32(pversion) > patchnum)
                             {
                                 patchnum = System.Convert.ToInt32(pversion);
-                                xmlVersion = "v" + xml.Element("ContentMeta").Element("Version").Value;
+                                xmlVersion = $"v{xml.Element("ContentMeta").Element("Version").Value}";
                                 int number = System.Convert.ToInt32(pversion);
-                                patchver = "v" + System.Convert.ToString((double)number / 65536);
+                                patchver = $"v{System.Convert.ToString((double)number / 65536)}";
                             }
 
-                            updtitle[updnum] = "[" + TB_TID.Text + "]" + "[v" + pversion + "]";
+                            updtitle[updnum] = $"[{TB_TID.Text}][v{pversion}]";
                             updnum++;
                         }
                         else if (contentType == "Application")
                         {
                             baseflag = 1;
-                            if (patchflag != 1) xmlVersion = "v" + xml.Element("ContentMeta").Element("Version").Value;
-                            basetitle[basenum] = "[" + TB_TID.Text + "]" + "[v" + pversion + "]";
+                            if (patchflag != 1)
+                            {
+                                xmlVersion = $"v{xml.Element("ContentMeta").Element("Version").Value}";
+                            }
+
+                            basetitle[basenum] = $"[{TB_TID.Text}][v{pversion}]";
                             basenum++;
                         }
                         else
                         {
-                            if (baseflag == 0 && patchflag == 0) xmlVersion = "v" + xml.Element("ContentMeta").Element("Version").Value;
-                            dlctitle[dlcnum] = "[" + TB_TID.Text + "]" + "[v" + pversion + "]";
+                            if (baseflag == 0 && patchflag == 0)
+                            {
+                                xmlVersion = $"v{xml.Element("ContentMeta").Element("Version").Value}";
+                            }
+
+                            dlctitle[dlcnum] = $"[{TB_TID.Text}][v{pversion}]";
                             dlcnum++;
                         }
 
@@ -403,7 +419,7 @@ namespace XCI_Explorer
                                     continue;
                                 }
 
-                                ncaTarget = xe.Element("Id").Value + ".nca";
+                                ncaTarget = $"{xe.Element("Id").Value}.nca";
                                 break;
                             }
                         }
@@ -416,7 +432,7 @@ namespace XCI_Explorer
                                     continue;
                                 }
 
-                                ncaTarget = xe.Element("Id").Value + ".cnmt.nca";
+                                ncaTarget = $"{xe.Element("Id").Value}.cnmt.nca";
                                 break;
                             }
                         }
@@ -460,7 +476,7 @@ namespace XCI_Explorer
                             process.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
+                                FileName = Path.Join("tools", "hactool.exe"),
                                 Arguments = "-k keys.txt --section0dir=data meta",
                                 UseShellExecute = false,
                                 RedirectStandardOutput = true,
@@ -481,7 +497,8 @@ namespace XCI_Explorer
 
                             if (!Directory.Exists("data"))
                             {
-                                MessageBox.Show(masterkey + " is missing!");
+                                new CenterWinDialog(this);
+                                MessageBox.Show($"{masterkey} is missing!");
                             }
                             else
                             {
@@ -507,8 +524,12 @@ namespace XCI_Explorer
                                             {
                                                 contentType = "Application";
                                                 baseflag = 1;
-                                                if (patchflag != 1) xmlVersion = "v" + array7[0].TitleVersion.ToString();
-                                                basetitle[basenum] = "[" + TB_TID.Text + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                                if (patchflag != 1)
+                                                {
+                                                    xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
+                                                }
+
+                                                basetitle[basenum] = $"[{TB_TID.Text}][v{array7[0].TitleVersion.ToString()}]";
                                                 basenum++;
                                             }
                                             else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.UPDATE_TITLE)
@@ -519,19 +540,23 @@ namespace XCI_Explorer
                                                 if (array7[0].TitleVersion > patchnum)
                                                 {
                                                     patchnum = array7[0].TitleVersion;
-                                                    xmlVersion = "v" + array7[0].TitleVersion.ToString();
+                                                    xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
                                                     int number = System.Convert.ToInt32(array7[0].TitleVersion);
-                                                    patchver = "v" + System.Convert.ToString((double)number / 65536);
+                                                    patchver = $"v{System.Convert.ToString((double)number / 65536)}";
                                                 }
 
-                                                updtitle[updnum] = "[" + TB_TID.Text + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                                updtitle[updnum] = $"[{TB_TID.Text}][v{array7[0].TitleVersion.ToString()}]";
                                                 updnum++;
                                             }
                                             else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.ADD_ON_CONTENT)
                                             {
-                                                if (baseflag == 0 && patchflag == 0) xmlVersion = "v" + array7[0].TitleVersion.ToString();
+                                                if (baseflag == 0 && patchflag == 0)
+                                                {
+                                                    xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
+                                                }
+
                                                 contentType = "AddOnContent";
-                                                dlctitle[dlcnum] = "[" + TB_TID.Text + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                                dlctitle[dlcnum] = $"[{TB_TID.Text}][v{array7[0].TitleVersion.ToString()}]";
                                                 dlcnum++;
                                             }
 
@@ -543,7 +568,7 @@ namespace XCI_Explorer
                                                 array9[k] = new CNMT.CNMT_Entry(buffer2);
                                                 if (array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.CONTROL || array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.DATA)
                                                 {
-                                                    ncaTarget = BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "") + ".nca";
+                                                    ncaTarget = $"{BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "")}.nca";
                                                     break;
                                                 }
                                             }
@@ -567,7 +592,7 @@ namespace XCI_Explorer
                         byte[] array5 = new byte[64 * 1024];
                         fileStream.Position = 16 + 24 * PFS0.PFS0_Headers[0].FileCount + PFS0.PFS0_Headers[0].StringTableSize + array3[n].Offset;
 
-                        using (Stream output = File.Create($"tmp{Path.DirectorySeparatorChar}" + ncaTarget))
+                        using (Stream output = File.Create(Path.Join("tmp", ncaTarget)))
                         {
                             long Size = array3[n].Size;
                             int result = 0;
@@ -595,8 +620,8 @@ namespace XCI_Explorer
                     process.StartInfo = new ProcessStartInfo
                     {
                         WindowStyle = ProcessWindowStyle.Hidden,
-                        FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
-                        Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget,
+                        FileName = Path.Join("tools", "hactool.exe"),
+                        Arguments = $"-k keys.txt --romfsdir=tmp tmp/{ncaTarget}",
                         UseShellExecute = false,
                         CreateNoWindow = true
                     };
@@ -608,7 +633,7 @@ namespace XCI_Explorer
 
                     try
                     {
-                        byte[] source = File.ReadAllBytes($"tmp{Path.DirectorySeparatorChar}control.nacp");
+                        byte[] source = File.ReadAllBytes(Path.Join("tmp", "control.nacp"));
                         NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
 
                         for (int i = 0; i < NACP.NACP_Strings.Length; i++)
@@ -618,7 +643,7 @@ namespace XCI_Explorer
                             if (NACP.NACP_Strings[i].Check != 0)
                             {
                                 CB_RegionName.Items.Add(Language[i]);
-                                string icon_filename = $"tmp{Path.DirectorySeparatorChar}icon_" + Language[i].Replace(" ", "") + ".dat";
+                                string icon_filename = Path.Join("tmp", $"icon_{Language[i].Replace(" ", "")}.dat");
                                 if (File.Exists(icon_filename))
                                 {
                                     using (Bitmap original = new Bitmap(icon_filename))
@@ -629,60 +654,61 @@ namespace XCI_Explorer
                                 }
                             }
                         }
+
+                        string gameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
                         if (xmlVersion.Trim() == "")
                         {
-                            TB_GameRev.Text = "GENERAL:" + System.Environment.NewLine + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")" + System.Environment.NewLine;
+                            TB_GameRev.Text = $"GENERAL:{Environment.NewLine}({gameVer}){Environment.NewLine}";
                         }
                         else
                         {
-                            string cache;
-
-                            if (patchflag == 1)
-                                cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + patchver + ")" + System.Environment.NewLine;
-                            else
-                                cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")" + System.Environment.NewLine;
+                            string cache = $"GENERAL:{Environment.NewLine}{gameVer}{((patchflag == 1) ? $" ({patchver})" : "")}{Environment.NewLine}";
 
                             if (basenum != 0)
                             {
-                                cache = cache + "BASE:" + System.Environment.NewLine;
+                                cache += $"BASE:{Environment.NewLine}";
                                 for (int i = 0; i < basenum; i++)
                                 {
-                                    cache = cache + basetitle[i] + System.Environment.NewLine;
+                                    cache += basetitle[i] + Environment.NewLine;
                                 }
                             }
                             else
                             {
-                                cache = cache + "BASE:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                                cache += $"BASE:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                             }
                             if (updnum != 0)
                             {
-                                cache = cache + "UPD:" + System.Environment.NewLine;
+                                cache += $"UPD:{System.Environment.NewLine}";
                                 for (int i = 0; i < updnum; i++)
                                 {
-                                    cache = cache + updtitle[i] + System.Environment.NewLine;
+                                    cache += updtitle[i] + System.Environment.NewLine;
                                 }
                             }
                             else
                             {
-                                cache = cache + "UPD:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                                cache += $"UPD:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                             }
                             if (dlcnum != 0)
                             {
-                                cache = cache + "DLC:" + System.Environment.NewLine;
+                                cache += $"DLC:{System.Environment.NewLine}";
                                 for (int i = 0; i < dlcnum; i++)
                                 {
                                     if (i < dlcnum - 1)
-                                        cache = cache + dlctitle[i] + System.Environment.NewLine;
+                                    {
+                                        cache += dlctitle[i] + System.Environment.NewLine;
+                                    }
                                     else
-                                        cache = cache + dlctitle[i];
+                                    {
+                                        cache += dlctitle[i];
+                                    }
                                 }
                             }
                             else
                             {
-                                cache = cache + "DLC:" + System.Environment.NewLine + "EMPTY";
+                                cache += $"DLC:{System.Environment.NewLine}EMPTY";
                             }
                             TB_GameRev.Text = cache;
-                            label12.Text = basenum.ToString() + " BASE, " + updnum.ToString() + " UPD, " + dlcnum.ToString() + " DLC";
+                            label12.Text = $"{basenum.ToString()} BASE, {updnum.ToString()} UPD, {dlcnum.ToString()} DLC";
                         }
 
                         TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", "");
@@ -715,58 +741,58 @@ namespace XCI_Explorer
                 {
                     if (xmlVersion.Trim() == "")
                     {
-                        TB_GameRev.Text = "GENERAL:" + System.Environment.NewLine + System.Environment.NewLine;
+                        TB_GameRev.Text = $"GENERAL:{System.Environment.NewLine}{System.Environment.NewLine}";
                     }
                     else
                     {
-                        string cache;
-
-                        if (patchflag == 1)
-                            cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + patchver + ")" + System.Environment.NewLine;
-                        else
-                            cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + System.Environment.NewLine;
+                        string gameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
+                        string cache = $"GENERAL:{Environment.NewLine}{gameVer}{((patchflag == 1) ? $" ({patchver})" : "")}{Environment.NewLine}";
 
                         if (basenum != 0)
                         {
-                            cache = cache + "BASE:" + System.Environment.NewLine;
+                            cache += $"BASE:{System.Environment.NewLine}";
                             for (int i = 0; i < basenum; i++)
                             {
-                                cache = cache + basetitle[i] + System.Environment.NewLine;
+                                cache += basetitle[i] + System.Environment.NewLine;
                             }
                         }
                         else
                         {
-                            cache = cache + "BASE:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                            cache += $"BASE:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                         }
                         if (updnum != 0)
                         {
-                            cache = cache + "UPD:" + System.Environment.NewLine;
+                            cache += $"UPD:{System.Environment.NewLine}";
                             for (int i = 0; i < updnum; i++)
                             {
-                                cache = cache + updtitle[i] + System.Environment.NewLine;
+                                cache += updtitle[i] + System.Environment.NewLine;
                             }
                         }
                         else
                         {
-                            cache = cache + "UPD:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                            cache += $"UPD:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                         }
                         if (dlcnum != 0)
                         {
-                            cache = cache + "DLC:" + System.Environment.NewLine;
+                            cache += $"DLC:{System.Environment.NewLine}";
                             for (int i = 0; i < dlcnum; i++)
                             {
                                 if (i < dlcnum - 1)
-                                    cache = cache + dlctitle[i] + System.Environment.NewLine;
+                                {
+                                    cache += dlctitle[i] + System.Environment.NewLine;
+                                }
                                 else
-                                    cache = cache + dlctitle[i];
+                                {
+                                    cache += dlctitle[i];
+                                }
                             }
                         }
                         else
                         {
-                            cache = cache + "DLC:" + System.Environment.NewLine + "EMPTY";
+                            cache += $"DLC:{System.Environment.NewLine}EMPTY";
                         }
                         TB_GameRev.Text = cache;
-                        label12.Text = basenum.ToString() + " BASE, " + updnum.ToString() + " UPD, " + dlcnum.ToString() + " DLC";
+                        label12.Text = $"{basenum.ToString()} BASE, {updnum.ToString()} UPD, {dlcnum.ToString()} DLC";
                     }
                     TB_ProdCode.Text = "No Prod. ID";
                 }
@@ -777,8 +803,8 @@ namespace XCI_Explorer
                 process.StartInfo = new ProcessStartInfo
                 {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
-                    Arguments = "-k keys.txt tmp/" + ncaTarget,
+                    FileName = Path.Join("tools", "hactool.exe"),
+                    Arguments = $"-k keys.txt tmp/{ncaTarget}",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -865,7 +891,10 @@ namespace XCI_Explorer
 
                     for (int si = 0; si < SecureSize.Length; si++)
                     {
-                        if (SecureSize[si] > 0x4E20000) continue;
+                        if (SecureSize[si] > 0x4E20000)
+                        {
+                            continue;
+                        }
 
                         if (SecureName[si].EndsWith(".cnmt.nca"))
                         {
@@ -894,7 +923,7 @@ namespace XCI_Explorer
                             process1.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
+                                FileName = Path.Join("tools", "hactool.exe"),
                                 Arguments = "-k keys.txt --section0dir=data meta",
                                 UseShellExecute = false,
                                 CreateNoWindow = true
@@ -922,8 +951,12 @@ namespace XCI_Explorer
                                     if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.REGULAR_APPLICATION)
                                     {
                                         baseflag = 1;
-                                        if (patchflag != 1) xmlVersion = "v" + array7[0].TitleVersion.ToString();
-                                        basetitle[basenum] = "[" + saveTID + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                        if (patchflag != 1)
+                                        {
+                                            xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
+                                        }
+
+                                        basetitle[basenum] = $"[{saveTID}][v{array7[0].TitleVersion.ToString()}]";
                                         basenum++;
                                     }
                                     else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.UPDATE_TITLE)
@@ -932,18 +965,22 @@ namespace XCI_Explorer
                                         if (array7[0].TitleVersion > patchnum)
                                         {
                                             patchnum = array7[0].TitleVersion;
-                                            xmlVersion = "v" + array7[0].TitleVersion.ToString();
+                                            xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
                                             int number = System.Convert.ToInt32(array7[0].TitleVersion);
-                                            patchver = "v" + System.Convert.ToString((double)number / 65536);
+                                            patchver = $"v{System.Convert.ToString((double)number / 65536)}";
                                         }
 
-                                        updtitle[updnum] = "[" + saveTID + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                        updtitle[updnum] = $"[{saveTID}][v{array7[0].TitleVersion.ToString()}]";
                                         updnum++;
                                     }
                                     else if (array7[0].Type == (byte)CNMT.CNMT_Header.TitleType.ADD_ON_CONTENT)
                                     {
-                                        if (patchflag == 0 && baseflag == 0) xmlVersion = "v" + array7[0].TitleVersion.ToString();
-                                        dlctitle[dlcnum] = "[" + saveTID + "]" + "[v" + array7[0].TitleVersion.ToString() + "]";
+                                        if (patchflag == 0 && baseflag == 0)
+                                        {
+                                            xmlVersion = $"v{array7[0].TitleVersion.ToString()}";
+                                        }
+
+                                        dlctitle[dlcnum] = $"[{saveTID}][v{array7[0].TitleVersion.ToString()}]";
                                         dlcnum++;
                                     }
 
@@ -955,7 +992,7 @@ namespace XCI_Explorer
                                         array9[k] = new CNMT.CNMT_Entry(buffer2);
                                         if (array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.CONTROL || array9[k].Type == (byte)CNMT.CNMT_Entry.ContentType.DATA)
                                         {
-                                            ncaTarget.Add(BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "") + ".nca");
+                                            ncaTarget.Add($"{BitConverter.ToString(array9[k].NcaId).ToLower().Replace("-", "")}.nca");
                                             break;
                                         }
                                     }
@@ -967,7 +1004,10 @@ namespace XCI_Explorer
 
                     for (int si = 0; si < SecureSize.Length; si++)
                     {
-                        if (SecureSize[si] > 0x4E20000) continue;
+                        if (SecureSize[si] > 0x4E20000)
+                        {
+                            continue;
+                        }
 
                         if (ncaTarget.Contains(SecureName[si]))
                         {
@@ -997,7 +1037,7 @@ namespace XCI_Explorer
                             process.StartInfo = new ProcessStartInfo
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
-                                FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
+                                FileName = Path.Join("tools", "hactool.exe"),
                                 Arguments = "-k keys.txt --romfsdir=data meta",
                                 UseShellExecute = false,
                                 CreateNoWindow = true
@@ -1005,9 +1045,9 @@ namespace XCI_Explorer
                             process.Start();
                             process.WaitForExit();
 
-                            if (File.Exists($"data{Path.DirectorySeparatorChar}control.nacp"))
+                            if (File.Exists(Path.Join("data", "control.nacp")))
                             {
-                                byte[] source = File.ReadAllBytes($"data{Path.DirectorySeparatorChar}control.nacp");
+                                byte[] source = File.ReadAllBytes(Path.Join("data", "control.nacp"));
                                 NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
 
                                 string GameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
@@ -1030,7 +1070,7 @@ namespace XCI_Explorer
                                         if (NACP.NACP_Strings[i].Check != 0 && !CB_RegionName.Items.Contains(Language[i]))
                                         {
                                             CB_RegionName.Items.Add(Language[i]);
-                                            string icon_filename = $"data{Path.DirectorySeparatorChar}icon_" + Language[i].Replace(" ", "") + ".dat";
+                                            string icon_filename = Path.Join("data", $"icon_{Language[i].Replace(" ", "")}.dat");
                                             if (File.Exists(icon_filename))
                                             {
                                                 using (Bitmap original = new Bitmap(icon_filename))
@@ -1057,53 +1097,54 @@ namespace XCI_Explorer
                         }
                     }
 
-                    string cache;
-                    if (patchflag == 1)
-                        cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + patchver + ")" + " (" + GameRevision + ")" + System.Environment.NewLine;
-                    else
-                        cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")" + System.Environment.NewLine;
+                    string gameVer = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
+                    string cache = $"GENERAL:{Environment.NewLine}{gameVer}{((patchflag == 1) ? $" ({patchver})" : "")}{Environment.NewLine}";
 
                     if (basenum != 0)
                     {
-                        cache = cache + "BASE:" + System.Environment.NewLine;
+                        cache += $"BASE:{System.Environment.NewLine}";
                         for (int i = 0; i < basenum; i++)
                         {
-                            cache = cache + basetitle[i] + System.Environment.NewLine;
+                            cache += basetitle[i] + System.Environment.NewLine;
                         }
                     }
                     else
                     {
-                        cache = cache + "BASE:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                        cache += $"BASE:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                     }
                     if (updnum != 0)
                     {
-                        cache = cache + "UPD:" + System.Environment.NewLine;
+                        cache += $"UPD:{System.Environment.NewLine}";
                         for (int i = 0; i < updnum; i++)
                         {
-                            cache = cache + updtitle[i] + System.Environment.NewLine;
+                            cache += updtitle[i] + System.Environment.NewLine;
                         }
                     }
                     else
                     {
-                        cache = cache + "UPD:" + System.Environment.NewLine + "EMPTY" + System.Environment.NewLine;
+                        cache += $"UPD:{System.Environment.NewLine}EMPTY{System.Environment.NewLine}";
                     }
                     if (dlcnum != 0)
                     {
-                        cache = cache + "DLC:" + System.Environment.NewLine;
+                        cache += $"DLC:{System.Environment.NewLine}";
                         for (int i = 0; i < dlcnum; i++)
                         {
                             if (i < dlcnum - 1)
-                                cache = cache + dlctitle[i] + System.Environment.NewLine;
+                            {
+                                cache += dlctitle[i] + System.Environment.NewLine;
+                            }
                             else
-                                cache = cache + dlctitle[i];
+                            {
+                                cache += dlctitle[i];
+                            }
                         }
                     }
                     else
                     {
-                        cache = cache + "DLC:" + System.Environment.NewLine + "EMPTY";
+                        cache += $"DLC:{System.Environment.NewLine}EMPTY";
                     }
                     TB_GameRev.Text = cache;
-                    label12.Text = basenum.ToString() + " BASE, " + updnum.ToString() + " UPD, " + dlcnum.ToString() + " DLC";
+                    label12.Text = $"{basenum.ToString()} BASE, {updnum.ToString()} UPD, {dlcnum.ToString()} DLC";
 
                     CB_RegionName.SelectedIndex = 0;
 
@@ -1112,15 +1153,15 @@ namespace XCI_Explorer
             }
             else
             {
-                TB_Dev.Text = Mkey + " not found";
-                TB_Name.Text = Mkey + " not found";
+                TB_Dev.Text = $"{Mkey} not found";
+                TB_Name.Text = $"{Mkey} not found";
             }
         }
 
         private void LoadNCAData()
         {
             NCA.NCA_Headers[0] = new NCA.NCA_Header(DecryptNCAHeader(gameNcaOffset));
-            TB_TID.Text = "0" + NCA.NCA_Headers[0].TitleID.ToString("X");
+            TB_TID.Text = $"0{NCA.NCA_Headers[0].TitleID.ToString("X")}";
             TB_SDKVer.Text = $"{NCA.NCA_Headers[0].SDKVersion4}.{NCA.NCA_Headers[0].SDKVersion3}.{NCA.NCA_Headers[0].SDKVersion2}.{NCA.NCA_Headers[0].SDKVersion1}";
             TB_MKeyRev.Text = Util.GetMkey(NCA.NCA_Headers[0].MasterKeyRev);
         }
@@ -1131,7 +1172,10 @@ namespace XCI_Explorer
             StringBuilder hex = new StringBuilder(ba.Length * 2 + 2);
             hex.Append("0x");
             foreach (byte b in ba)
+            {
                 hex.AppendFormat("{0:x2}", b);
+            }
+
             return hex.ToString();
         }
 
@@ -1187,7 +1231,7 @@ namespace XCI_Explorer
                 fileStream.Read(hashBuffer, 0, array[i].HashedRegionSize);
                 actualHash = SHA256Bytes(hashBuffer);
 
-                TV_Parti.AddFile(array[i].Name + ".hfs0", rootNode, offset, array[i].Size, array[i].HashedRegionSize, ByteArrayToString(array[i].Hash), actualHash);
+                TV_Parti.AddFile($"{array[i].Name}.hfs0", rootNode, offset, array[i].Size, array[i].HashedRegionSize, ByteArrayToString(array[i].Hash), actualHash);
                 BetterTreeNode betterTreeNode = TV_Parti.AddDir(array[i].Name, rootNode);
                 HFS0.HFS0_Header[] array5 = new HFS0.HFS0_Header[1];
                 fileStream.Position = array[i].Offset + num;
@@ -1273,7 +1317,7 @@ namespace XCI_Explorer
                 catch (Exception ex)
                 {
                     array8 = new PFS0.PFS0_Entry[0];
-                    Debug.WriteLine("Partitions Error: " + ex.Message);
+                    Debug.WriteLine($"Partitions Error: {ex.Message}");
                 }
                 for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++)
                 {
@@ -1375,7 +1419,7 @@ namespace XCI_Explorer
                 string actualHash = betterTreeNode.ActualHash;
                 long HashedRegionSize = betterTreeNode.HashedRegionSize;
 
-                LB_DataOffset.Text = "Offset: 0x" + selectedOffset.ToString("X");
+                LB_DataOffset.Text = $"Offset: 0x{selectedOffset.ToString("X")}";
                 LB_SelectedData.Text = e.Node.Text;
                 if (backgroundWorker1.IsBusy != true)
                 {
@@ -1396,11 +1440,11 @@ namespace XCI_Explorer
                     num2++;
                     num /= 1024.0;
                 }
-                LB_DataSize.Text = "Size:   0x" + selectedSize.ToString("X") + " (" + num.ToString() + array[num2] + ")";
+                LB_DataSize.Text = $"Size:   0x{selectedSize.ToString("X")} ({num.ToString()}{array[num2]})";
 
                 if (HashedRegionSize != 0)
                 {
-                    LB_HashedRegionSize.Text = "HashedRegionSize: 0x" + HashedRegionSize.ToString("X");
+                    LB_HashedRegionSize.Text = $"HashedRegionSize: 0x{HashedRegionSize.ToString("X")}";
                 }
                 else
                 {
@@ -1409,7 +1453,7 @@ namespace XCI_Explorer
 
                 if (!string.IsNullOrEmpty(expectedHash))
                 {
-                    LB_ExpectedHash.Text = "Header Hash: " + expectedHash.Substring(0, 32);
+                    LB_ExpectedHash.Text = $"Header Hash: {expectedHash.Substring(0, 32)}";
                 }
                 else
                 {
@@ -1418,7 +1462,7 @@ namespace XCI_Explorer
 
                 if (!string.IsNullOrEmpty(actualHash))
                 {
-                    LB_ActualHash.Text = "Actual Hash: " + actualHash.Substring(0, 32);
+                    LB_ActualHash.Text = $"Actual Hash: {actualHash.Substring(0, 32)}";
                     if (actualHash == expectedHash)
                     {
                         LB_ActualHash.ForeColor = System.Drawing.Color.Green;
@@ -1480,7 +1524,7 @@ namespace XCI_Explorer
 
         private void B_ExportCert_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -1494,7 +1538,7 @@ namespace XCI_Explorer
                     fileStream.Read(array, 0, 512);
                     File.WriteAllBytes(saveFileDialog.FileName, array);
                     fileStream.Close();
-                    MessageBox.Show("Cert successfully exported to:\n\n" + saveFileDialog.FileName);
+                    MessageBox.Show($"Cert successfully exported to:\n\n{saveFileDialog.FileName}");
                 }
             }
             else
@@ -1505,7 +1549,7 @@ namespace XCI_Explorer
 
         private void B_ImportCert_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -1517,7 +1561,7 @@ namespace XCI_Explorer
                         stream.Position = 28672L;
                         stream.Write(File.ReadAllBytes(openFileDialog.FileName), 0, 512);
                     }
-                    MessageBox.Show("Cert successfully imported from:\n\n" + openFileDialog.FileName);
+                    MessageBox.Show($"Cert successfully imported from:\n\n{openFileDialog.FileName}");
                 }
             }
             else
@@ -1528,11 +1572,11 @@ namespace XCI_Explorer
 
         private void B_ViewCert_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 CertForm cert = new CertForm(this);
-                cert.Text = "Cert Data - " + TB_File.Text;
+                cert.Text = $"Cert Data - {TB_File.Text}";
                 cert.Show();
             }
             else
@@ -1543,7 +1587,7 @@ namespace XCI_Explorer
 
         private void B_ClearCert_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 if (MessageBox.Show("The cert will be deleted permanently.\nContinue?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -1557,6 +1601,7 @@ namespace XCI_Explorer
                         }
                         stream.Position = 28672L;
                         stream.Write(array, 0, array.Length);
+                        new CenterWinDialog(this);
                         MessageBox.Show("Cert deleted.");
                     }
                 }
@@ -1595,16 +1640,16 @@ namespace XCI_Explorer
                 FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Read);
                 fileStream.Position = offset;
                 fileStream.Read(array, 0, 3072);
-                File.WriteAllBytes(TB_File.Text + ".tmp", array);
+                File.WriteAllBytes($"{TB_File.Text}.tmp", array);
                 Xts xts = XtsAes128.Create(NcaHeaderEncryptionKey1_Prod, NcaHeaderEncryptionKey2_Prod);
-                using (BinaryReader binaryReader = new BinaryReader(File.OpenRead(TB_File.Text + ".tmp")))
+                using (BinaryReader binaryReader = new BinaryReader(File.OpenRead($"{TB_File.Text}.tmp")))
                 {
                     using (XtsStream xtsStream = new XtsStream(binaryReader.BaseStream, xts, 512))
                     {
                         xtsStream.Read(array, 0, 3072);
                     }
                 }
-                File.Delete(TB_File.Text + ".tmp");
+                File.Delete($"{TB_File.Text}.tmp");
                 fileStream.Close();
             }
             return array;
@@ -1636,12 +1681,12 @@ namespace XCI_Explorer
 
         private void B_TrimXCI_Click(object sender, EventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    using CenterWinDialog centerInner = new CenterWinDialog(this);
+                    new CenterWinDialog(this);
                     if (!isTrimmed())
                     {
                         FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Write);
@@ -1658,7 +1703,7 @@ namespace XCI_Explorer
                             "TB"
                         };
                         double num = (double)new FileInfo(TB_File.Text).Length;
-                        TB_ROMExactSize.Text = "(" + num.ToString() + " bytes)";
+                        TB_ROMExactSize.Text = $"({num.ToString()} bytes)";
                         int num2 = 0;
                         while (num >= 1024.0 && num2 < array.Length - 1)
                         {
@@ -1667,7 +1712,7 @@ namespace XCI_Explorer
                         }
                         TB_ROMSize.Text = $"{num:0.##} {array[num2]}";
                         double num3 = UsedSize = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
-                        TB_ExactUsedSpace.Text = "(" + num3.ToString() + " bytes)";
+                        TB_ExactUsedSpace.Text = $"({num3.ToString()} bytes)";
                         num2 = 0;
                         while (num3 >= 1024.0 && num2 < array.Length - 1)
                         {
@@ -1794,7 +1839,7 @@ namespace XCI_Explorer
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            using CenterWinDialog center = new CenterWinDialog(this);
+            new CenterWinDialog(this);
             B_Extract.Enabled = true;
             B_LoadROM.Enabled = true;
             B_TrimXCI.Enabled = true;
@@ -1803,7 +1848,7 @@ namespace XCI_Explorer
 
             if (e.Error != null)
             {
-                MessageBox.Show("Error: " + e.Error.Message);
+                MessageBox.Show($"Error: {e.Error.Message}");
             }
             else
             {
