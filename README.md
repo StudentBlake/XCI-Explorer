@@ -16,8 +16,7 @@ Main | Partitions
 ![main](https://cdn.discordapp.com/attachments/373320120707055617/686252629852291095/1.JPG) | ![partitions](https://cdn.discordapp.com/attachments/373320120707055617/686252642204385288/2.JPG)
 
 ## Build Requirements
-* [Visual Studio Community 2019](https://visualstudio.microsoft.com/downloads/)
-* [.NET Framework 4.8 Developer Pack](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-developer-pack-offline-installer)
+* [Visual Studio Community 2022 with .NET Desktop Workflow](https://visualstudio.microsoft.com/vs/preview/)
 * [hactool](https://github.com/SciresM/hactool/releases)
 * [Lockpick](https://github.com/shchmue/Lockpick_RCM/releases)
 
