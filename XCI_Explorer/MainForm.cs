@@ -767,7 +767,7 @@ namespace XCI_Explorer
                         }
                         TB_GameRev.Text = cache;
                         label12.Text = basenum.ToString() + " BASE, " + updnum.ToString() + " UPD, " + dlcnum.ToString() + " DLC";
-                    }            
+                    }
                     TB_ProdCode.Text = "No Prod. ID";
                 }
 
@@ -1059,7 +1059,7 @@ namespace XCI_Explorer
 
                     string cache;
                     if (patchflag == 1)
-                        cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + patchver + ")" + System.Environment.NewLine;
+                        cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + patchver + ")" + " (" + GameRevision + ")" + System.Environment.NewLine;
                     else
                         cache = "GENERAL:" + System.Environment.NewLine + xmlVersion + " (" + NACP.NACP_Datas[0].GameVer.Replace("\0", "") + ")" + System.Environment.NewLine;
 
