@@ -39,8 +39,8 @@ namespace XCI_Explorer
             "Portuguese",
             "Russian",
             "Korean",
-            "Taiwanese",
-            "Chinese",
+            "Traditional Chinese",
+            "Simplified Chinese",
             "???"
         };
 
