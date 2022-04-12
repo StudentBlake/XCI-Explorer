@@ -1,0 +1,6 @@
+Source: https://github.com/SciresM/hactool/releases/tag/1.4.0
+
+Algorithm       Hash                                                                   Path
+---------       ----                                                                   ----
+SHA256          36E9A221C8A7949C86ADA9388EB703C90663AEDFE9F65B6032429614C5E1ABE8       hactool-1.4.0-win.zip
+SHA256          01E6CCB916C74071645DF84F13E05D0185C9B2F5D748E469C84A157A53395CF9       hactool.exe

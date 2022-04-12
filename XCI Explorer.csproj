@@ -1,95 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{89DBE891-22C7-40FF-A3D3-36F26224E09D}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <AssemblyName>XCI-Explorer</AssemblyName>
-    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RootNamespace>XCI_Explorer</RootNamespace>
+    <DebugSymbols>false</DebugSymbols>
+	<DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Be.Windows.Forms.HexBox, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Be.Windows.Forms.HexBox.1.6.1\lib\net40\Be.Windows.Forms.HexBox.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="XCI_Explorer\CertForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="XCI_Explorer\CertForm.Designer.cs">
-      <DependentUpon>CertForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XCI_Explorer.Helpers\BetterBinaryReader.cs" />
-    <Compile Include="XCI_Explorer.Helpers\BetterTreeNode.cs" />
-    <Compile Include="XCI_Explorer\CNMT.cs" />
-    <Compile Include="XCI_Explorer\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="XCI_Explorer\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="XCI_Explorer\HFS0.cs" />
-    <Compile Include="XCI_Explorer\NACP.cs" />
-    <Compile Include="XCI_Explorer\NCA.cs" />
-    <Compile Include="XCI_Explorer\PFS0.cs" />
-    <Compile Include="XCI_Explorer\Program.cs" />
-    <Compile Include="XCI_Explorer\TreeViewFileSystem.cs" />
-    <Compile Include="XCI_Explorer\Util.cs" />
-    <Compile Include="XCI_Explorer\XCI.cs" />
-    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
-    <Compile Include="XTSSharp\SectorStream.cs" />
-    <Compile Include="XTSSharp\Xts.cs" />
-    <Compile Include="XTSSharp\XtsAes128.cs" />
-    <Compile Include="XTSSharp\XtsAes256.cs" />
-    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
-    <Compile Include="XTSSharp\XtsSectorStream.cs" />
-    <Compile Include="XTSSharp\XtsStream.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="XCI_Explorer\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Be.Windows.Forms.HexBox.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

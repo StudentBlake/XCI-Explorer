@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -63,12 +63,14 @@ namespace XCI_Explorer
 
             if (!File.Exists("keys.txt"))
             {
+
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.\n", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L2NWR3JQSHp6"), "keys.txt");
-                    }
+                    using HttpClient client = new();
+                    using HttpResponseMessage response = client.Send(new HttpRequestMessage(HttpMethod.Get, Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L1d1TXZBaTN2")));
+                    using Stream stream = response.Content.ReadAsStream();
+                    using FileStream fs = new("keys.txt", FileMode.CreateNew);
+                    stream.CopyTo(fs);
                 }
 
                 if (!File.Exists("keys.txt"))
@@ -95,6 +97,7 @@ namespace XCI_Explorer
                 Application.DoEvents();
                 ProcessFile();
             }
+
         }
 
         private string getAssemblyVersion()
@@ -166,6 +169,7 @@ namespace XCI_Explorer
 
         private void ProcessFile()
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             // Code needs refactoring 
             LB_SelectedData.Text = "";
             LB_DataOffset.Text = "";
@@ -212,6 +216,7 @@ namespace XCI_Explorer
 
         private void B_LoadROM_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Switch Game File (*.xci, *.nsp, *.nsz)|*.xci;*.nsp;*.nsz|All Files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -591,7 +596,9 @@ namespace XCI_Explorer
                     {
                         WindowStyle = ProcessWindowStyle.Hidden,
                         FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
-                        Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
+                        Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
                     };
 
                     process.Start();
@@ -794,22 +801,10 @@ namespace XCI_Explorer
                         string MasterKey = strArray[1].Trim();
                         int keyblob;
 
-                        if (MasterKey.Contains("Unknown"))
-                        {
-                            if (int.TryParse(new string(MasterKey.TakeWhile(Char.IsDigit).ToArray()), out keyblob))
-                            {
-                                MasterKey = Util.GetMkey((byte)(keyblob + 1)).Replace("MasterKey", "");
-                            }
-                            TB_MKeyRev.Text = "MasterKey" + MasterKey;
-                        }
-                        else
-                        {
-                            MasterKey = MasterKey.Split(new char[2] { 'x', ' ' })[1];
-                            keyblob = Convert.ToInt32(MasterKey, 16);
-                            MasterKey = Util.GetMkey((byte)(keyblob + 1));
-                            TB_MKeyRev.Text = MasterKey;
-                        }
-
+                        MasterKey = MasterKey.Split(new char[2] { 'x', ' ' })[1];
+                        keyblob = Convert.ToInt32(MasterKey, 16);
+                        MasterKey = Util.GetMkey((byte)(keyblob + 1));
+                        TB_MKeyRev.Text = MasterKey;
                         break;
                     }
                 }
@@ -900,8 +895,9 @@ namespace XCI_Explorer
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
                                 FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
-                                //FileName = "tools\\hactool.exe",
-                                Arguments = "-k keys.txt --section0dir=data meta"
+                                Arguments = "-k keys.txt --section0dir=data meta",
+                                UseShellExecute = false,
+                                CreateNoWindow = true
                             };
                             process1.Start();
                             process1.WaitForExit();
@@ -1002,7 +998,9 @@ namespace XCI_Explorer
                             {
                                 WindowStyle = ProcessWindowStyle.Hidden,
                                 FileName = $"tools{Path.DirectorySeparatorChar}hactool.exe",
-                                Arguments = "-k keys.txt --romfsdir=data meta"
+                                Arguments = "-k keys.txt --romfsdir=data meta",
+                                UseShellExecute = false,
+                                CreateNoWindow = true
                             };
                             process.Start();
                             process.WaitForExit();
@@ -1139,7 +1137,7 @@ namespace XCI_Explorer
 
         public static string SHA256Bytes(byte[] ba)
         {
-            SHA256 mySHA256 = SHA256Managed.Create();
+            SHA256 mySHA256 = SHA256.Create();
             byte[] hashValue;
             hashValue = mySHA256.ComputeHash(ba);
             return ByteArrayToString(hashValue);
@@ -1482,6 +1480,7 @@ namespace XCI_Explorer
 
         private void B_ExportCert_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -1495,7 +1494,7 @@ namespace XCI_Explorer
                     fileStream.Read(array, 0, 512);
                     File.WriteAllBytes(saveFileDialog.FileName, array);
                     fileStream.Close();
-                    MessageBox.Show("cert successfully exported to:\n\n" + saveFileDialog.FileName);
+                    MessageBox.Show("Cert successfully exported to:\n\n" + saveFileDialog.FileName);
                 }
             }
             else
@@ -1506,6 +1505,7 @@ namespace XCI_Explorer
 
         private void B_ImportCert_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -1528,6 +1528,7 @@ namespace XCI_Explorer
 
         private void B_ViewCert_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 CertForm cert = new CertForm(this);
@@ -1542,6 +1543,7 @@ namespace XCI_Explorer
 
         private void B_ClearCert_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 if (MessageBox.Show("The cert will be deleted permanently.\nContinue?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -1581,8 +1583,6 @@ namespace XCI_Explorer
 
                     // Start the asynchronous operation.
                     backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
-
-                    MessageBox.Show("Extracting NCA\nPlease wait...");
                 }
             }
         }
@@ -1636,15 +1636,18 @@ namespace XCI_Explorer
 
         private void B_TrimXCI_Click(object sender, EventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             if (Util.checkFile(TB_File.Text))
             {
                 if (MessageBox.Show("Trim XCI?", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    using CenterWinDialog centerInner = new CenterWinDialog(this);
                     if (!isTrimmed())
                     {
                         FileStream fileStream = new FileStream(TB_File.Text, FileMode.Open, FileAccess.Write);
                         fileStream.SetLength((long)UsedSize);
                         fileStream.Close();
+                        B_TrimXCI.Enabled = false;
                         MessageBox.Show("Done.");
                         string[] array = new string[5]
                         {
@@ -1672,10 +1675,6 @@ namespace XCI_Explorer
                             num3 /= 1024.0;
                         }
                         TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
-                    }
-                    else
-                    {
-                        MessageBox.Show("No trimming needed!");
                     }
                 }
             }
@@ -1795,6 +1794,7 @@ namespace XCI_Explorer
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            using CenterWinDialog center = new CenterWinDialog(this);
             B_Extract.Enabled = true;
             B_LoadROM.Enabled = true;
             B_TrimXCI.Enabled = true;
