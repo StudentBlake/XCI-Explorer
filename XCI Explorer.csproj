@@ -18,7 +18,7 @@
   <ItemGroup>
     <None Update="tools\hactool.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
 </Project>
