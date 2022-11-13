@@ -69,7 +69,7 @@ public partial class MainForm : Form
             if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.\n", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 using HttpClient client = new();
-                using HttpResponseMessage response = client.Send(new HttpRequestMessage(HttpMethod.Get, Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3LzVnN3cxN2tF")));
+                using HttpResponseMessage response = client.Send(new HttpRequestMessage(HttpMethod.Get, Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L0Z2M25GRzJR")));
                 using Stream stream = response.Content.ReadAsStream();
                 using FileStream fs = new("keys.txt", FileMode.CreateNew);
                 stream.CopyTo(fs);
