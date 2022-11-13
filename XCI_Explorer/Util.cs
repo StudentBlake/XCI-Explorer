@@ -1,130 +1,73 @@
 using System;
-using System.IO;
 using System.Linq;
+using System.Text;
 
-namespace XCI_Explorer
+namespace XCI_Explorer;
+
+internal static class Util
 {
-    internal static class Util
+    public static string GetCapacity(int id)
     {
-        public static string GetCapacity(int id)
+        return id switch
         {
-            switch (id)
-            {
-                case 250:
-                    return "1GB";
-                case 248:
-                    return "2GB";
-                case 240:
-                    return "4GB";
-                case 224:
-                    return "8GB";
-                case 225:
-                    return "16GB";
-                case 226:
-                    return "32GB";
-                default:
-                    return "?";
-            }
-        }
-
-        public static string GetMkey(byte id)
-        {
-            switch (id)
-            {
-                case 0:
-                case 1:
-                    return "MasterKey0 (1.0.0-2.3.0)";
-                case 2:
-                    return "MasterKey1 (3.0.0)";
-                case 3:
-                    return "MasterKey2 (3.0.1-3.0.2)";
-                case 4:
-                    return "MasterKey3 (4.0.0-4.1.0)";
-                case 5:
-                    return "MasterKey4 (5.0.0-5.1.0)";
-                case 6:
-                    return "MasterKey5 (6.0.0-6.1.0)";
-                case 7:
-                    return "MasterKey6 (6.2.0)";
-                case 8:
-                    return "MasterKey7 (7.0.0-8.0.1)";
-                case 9:
-                    return "MasterKey8 (8.1.0-8.1.1)";
-                case 10:
-                    return "MasterKey9 (9.0.0-9.0.1)";
-                case 11:
-                    return "MasterKey10 (9.1.0-12.0.3)";
-                case 12:
-                    return "MasterKey11 (12.1.0)";
-                case 13:
-                    return "MasterKey12 (13.0.0-?)";
-                case 14:
-                    return "MasterKey13";
-                case 15:
-                    return "MasterKey14";
-                case 16:
-                    return "MasterKey15";
-                case 17:
-                    return "MasterKey16";
-                case 18:
-                    return "MasterKey17";
-                case 19:
-                    return "MasterKey18";
-                case 20:
-                    return "MasterKey19";
-                case 21:
-                    return "MasterKey20";
-                case 22:
-                    return "MasterKey21";
-                case 23:
-                    return "MasterKey22";
-                case 24:
-                    return "MasterKey23";
-                case 25:
-                    return "MasterKey24";
-                case 26:
-                    return "MasterKey25";
-                case 27:
-                    return "MasterKey26";
-                case 28:
-                    return "MasterKey27";
-                case 29:
-                    return "MasterKey28";
-                case 30:
-                    return "MasterKey29";
-                case 31:
-                    return "MasterKey30";
-                case 32:
-                    return "MasterKey31";
-                case 33:
-                    return "MasterKey32";
-                default:
-                    return "?";
-            }
-        }
-
-        public static bool checkFile(string filepath)
-        {
-            return File.Exists(filepath);
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            return (from x in Enumerable.Range(0, hex.Length)
-                    where x % 2 == 0
-                    select Convert.ToByte(hex.Substring(x, 2), 16)).ToArray();
-        }
-
-        public static string Base64Encode(string plainText)
-        {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-            return System.Convert.ToBase64String(plainTextBytes);
-        }
-
-        public static string Base64Decode(string base64EncodedData)
-        {
-            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-        }
+            250 => "1GB",
+            248 => "2GB",
+            240 => "4GB",
+            224 => "8GB",
+            225 => "16GB",
+            226 => "32GB",
+            _ => "?",
+        };
     }
+
+    public static string GetMkey(byte id)
+    {
+        return id switch
+        {
+            0 or 1 => "MasterKey0 (1.0.0-2.3.0)",
+            2 => "MasterKey1 (3.0.0)",
+            3 => "MasterKey2 (3.0.1-3.0.2)",
+            4 => "MasterKey3 (4.0.0-4.1.0)",
+            5 => "MasterKey4 (5.0.0-5.1.0)",
+            6 => "MasterKey5 (6.0.0-6.1.0)",
+            7 => "MasterKey6 (6.2.0)",
+            8 => "MasterKey7 (7.0.0-8.0.1)",
+            9 => "MasterKey8 (8.1.0-8.1.1)",
+            10 => "MasterKey9 (9.0.0-9.0.1)",
+            11 => "MasterKey10 (9.1.0-12.0.3)",
+            12 => "MasterKey11 (12.1.0)",
+            13 => "MasterKey12 (13.0.0-13.2.1)",
+            14 => "MasterKey13 (14.0.0-14.1.2)",
+            15 => "MasterKey14 (15.0.0-?)",
+            16 => "MasterKey15",
+            17 => "MasterKey16",
+            18 => "MasterKey17",
+            19 => "MasterKey18",
+            20 => "MasterKey19",
+            21 => "MasterKey20",
+            22 => "MasterKey21",
+            23 => "MasterKey22",
+            24 => "MasterKey23",
+            25 => "MasterKey24",
+            26 => "MasterKey25",
+            27 => "MasterKey26",
+            28 => "MasterKey27",
+            29 => "MasterKey28",
+            30 => "MasterKey29",
+            31 => "MasterKey30",
+            32 => "MasterKey31",
+            33 => "MasterKey32",
+            _ => "?",
+        };
+    }
+
+    public static byte[] StringToByteArray(string hex) => (from x in Enumerable.Range(0, hex.Length)
+                                                           where x % 2 == 0
+                                                           select Convert.ToByte(hex.Substring(x, 2), 16)).ToArray();
+
+    public static string Base64Encode(string plainText)
+    => Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText));
+
+    public static string Base64Decode(string base64EncodedData)
+    => Encoding.UTF8.GetString(Convert.FromBase64String(base64EncodedData));
 }
