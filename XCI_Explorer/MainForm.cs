@@ -149,8 +149,8 @@ public partial class MainForm : Form
             int num2 = NCA.NCA_Headers[0].MasterKeyRev - 1;
             string capchar = num2.ToString("X");
             string lowchar = capchar.ToLower();
-            Mkey += num2.ToString();
-            MkeyL += num2.ToString();
+            Mkey += capchar;
+            MkeyL += lowchar;
         }
         try
         {
